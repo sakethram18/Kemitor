@@ -5,4 +5,8 @@
     <string name="start_button">Start service</string>
     <string name="end_button">End service</string>
     <string name="permission_button">Check permissions</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>

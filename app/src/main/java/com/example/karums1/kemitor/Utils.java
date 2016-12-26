@@ -5,12 +5,15 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.graphics.drawable.Drawable;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -101,9 +104,9 @@ public class Utils {
                 TextUtils.SimpleStringSplitter splitter = mStringColonSplitter;
                 splitter.setString(settingValue);
                 while (splitter.hasNext()) {
-                    String accessabilityService = splitter.next();
-                    Log.d(TAG, "Setting: " + accessabilityService);
-                    if (accessabilityService.equalsIgnoreCase(KEMITOR_ACCESSIBILITY_SERVICE)) {
+                    String accessibilityService = splitter.next();
+                    Log.d(TAG, "Setting: " + accessibilityService);
+                    if (accessibilityService.equalsIgnoreCase(KEMITOR_ACCESSIBILITY_SERVICE)) {
                         Log.d(TAG, "We've found the correct setting - accessibility is switched on!");
                         return true;
                     }
@@ -114,5 +117,21 @@ public class Utils {
             Log.d(TAG, "***ACCESSIBILITY IS DISABLED***");
         }
         return false;
+    }
+
+    public static List<AppModel> getInstalledApps(Context context) {
+        List<PackageInfo> myApps = context.getPackageManager().getInstalledPackages(0);
+        List<AppModel> listOfApps = new ArrayList<>();
+        for (int i = 0; i < myApps.size(); i++) {
+            PackageInfo p = myApps.get(i);
+            String packageName = p.packageName;
+            String appName = p.applicationInfo.loadLabel(context.getPackageManager())
+                    .toString();
+            Drawable icon = p.applicationInfo.loadIcon(context.getPackageManager());
+            AppModel model = new AppModel(packageName, appName, icon);
+            listOfApps.add(model);
+        }
+        Log.d(TAG, "Loading list of installed apps");
+        return listOfApps;
     }
 }

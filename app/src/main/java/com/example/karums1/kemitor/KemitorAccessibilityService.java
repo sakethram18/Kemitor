@@ -27,6 +27,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
     }
 
     private void setServiceConfiguration(boolean isEnabled) {
+        //TODO: Optimize AccessibilityServiceInfo object creation
         if (!isEnabled) {
             this.setServiceInfo(new AccessibilityServiceInfo());
         } else {
