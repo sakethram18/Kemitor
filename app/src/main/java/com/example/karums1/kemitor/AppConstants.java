@@ -7,4 +7,5 @@ package com.example.karums1.kemitor;
 public class AppConstants {
     public final static String KEMITOR_ACCESSIBILITY_SERVICE_ENABLED =
             "isAccessibilityServiceEnabled";
+    public final static String LIST_OF_SELECTED_APPS = "selectedApps";
 }

@@ -97,8 +97,9 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        if (id == R.id.navAppsList) {
+            Intent appsActivity = new Intent(this, AppsListActivity.class);
+            startActivity(appsActivity);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -121,9 +122,9 @@ public class MainActivity extends AppCompatActivity
         switch (v.getId()) {
             case R.id.startButton:
                 if (handleAccessibilityPermissions()) {
-                    Intent startIntent = new Intent(this, KemitorAccessibilityService.class);
-                    startIntent.putExtra(KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
-                    ComponentName name = startService(startIntent);
+//                    Intent startIntent = new Intent(this, KemitorAccessibilityService.class);
+//                    startIntent.putExtra(KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
+//                    startService(startIntent);
                 }
                 Snackbar.make(v, "Start service is clicked", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
@@ -136,9 +137,9 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
                 break;
             case R.id.permissionButton:
-                Intent newAct = new Intent(this, MainActivity.class);
-                startActivity(newAct);
-//                handlePermissions(v);
+//                Intent newAct = new Intent(this, MainActivity.class);
+//                startActivity(newAct);
+                handlePermissions(v);
                 break;
         }
     }

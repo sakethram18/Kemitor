@@ -14,11 +14,19 @@ public class AppModel {
     private String packageName = "";
     private String appName = "";
     private Drawable appIcon;
+    private boolean isSelected;
 
     public AppModel(String packageName, String appName , Drawable appIcon) {
         this.packageName = packageName;
         this.appName = appName;
         this.appIcon = appIcon;
+    }
+
+    public AppModel(String packageName, String appName , Drawable appIcon, boolean isSelected) {
+        this.packageName = packageName;
+        this.appName = appName;
+        this.appIcon = appIcon;
+        this.isSelected = isSelected;
     }
 
     public String getPackageName() {
@@ -32,4 +40,13 @@ public class AppModel {
     public Drawable getAppIcon() {
         return appIcon;
     }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
 }
