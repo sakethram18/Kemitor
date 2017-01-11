@@ -15,9 +15,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".TimeServiceBackground"
-            android:exported="false"/>
-        <service
             android:name=".KemitorAccessibilityService"
             android:enabled="true"
             android:exported="false"
@@ -39,6 +36,11 @@
         </activity>
         <activity android:name=".AppsListActivity">
         </activity>
+
+        <provider
+            android:name=".data_access.KemitorDataProvider"
+            android:authorities="com.example.karums1.kemitordataprovider" >
+        </provider>
     </application>
 
 </manifest>
