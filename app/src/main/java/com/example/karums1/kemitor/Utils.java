@@ -135,10 +135,10 @@ public class Utils {
             Drawable icon = p.applicationInfo.loadIcon(context.getPackageManager());
             AppModel model = new AppModel(packageName, appName, icon);
             // TODO: Add system apps with a warning to the user
-            if ((p.applicationInfo.flags & (p.applicationInfo.FLAG_SYSTEM | p.applicationInfo
-                    .FLAG_UPDATED_SYSTEM_APP)) == 0) {
+//            if ((p.applicationInfo.flags & (p.applicationInfo.FLAG_SYSTEM | p.applicationInfo
+//                    .FLAG_UPDATED_SYSTEM_APP)) == 0) {
                 listOfApps.add(model);
-            }
+//            }
         }
         Log.d(TAG, "Loading list of installed apps");
         Collections.sort(listOfApps, new Comparator<AppModel>() {

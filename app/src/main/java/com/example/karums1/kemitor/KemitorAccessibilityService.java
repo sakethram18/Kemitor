@@ -43,10 +43,12 @@ public class KemitorAccessibilityService extends AccessibilityService {
 //                    new TypeToken<List<AppModel>>(){}.getType());
 
             AccessibilityServiceInfo info = new AccessibilityServiceInfo();
-            info.eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED |
-                    AccessibilityEvent.TYPE_VIEW_FOCUSED |
-                    AccessibilityEvent.TYPE_VIEW_CLICKED |
-                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+//            info.eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED |
+//                    AccessibilityEvent.TYPE_VIEW_FOCUSED |
+//                    AccessibilityEvent.TYPE_VIEW_CLICKED |
+//                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+
+            info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
 
             info.packageNames = (selectedAppsStr.toArray(new String[0]));
 
