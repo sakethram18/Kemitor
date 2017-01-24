@@ -2,24 +2,18 @@ package com.example.karums1.kemitor;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.example.karums1.kemitor.data_access.KemitorDataResolver;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import static com.example.karums1.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED;
 
 public class AppsListActivity extends AppCompatActivity {
 
@@ -90,12 +84,22 @@ public class AppsListActivity extends AppCompatActivity {
     private void handleSaveSettings() {
         //TODO: Add a dialog warning that service will be started and changes may no longer be
         // possible
+        // Update database with latest settings
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
+                dataResolver.deleteAllAppModels();
+                dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
+            }
+        }).start();
         ArrayList<AppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());
         Intent serviceIntent = new Intent(this, KemitorAccessibilityService.class);
         serviceIntent.putExtra(AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
         serviceIntent.putStringArrayListExtra(AppConstants.LIST_OF_SELECTED_APPS,
                 getPackageNameList(selectedApps));
         startService(serviceIntent);
+        finish();
     }
 
     private ArrayList<AppModel> getSelectedApps(ArrayList<AppModel> list) {

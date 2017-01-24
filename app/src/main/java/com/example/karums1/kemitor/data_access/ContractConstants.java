@@ -15,4 +15,9 @@ public class ContractConstants {
     public static final String CONTENT_URI          = "content://" + AUTHORITY;
     public static final String[] PACKAGES_ALL_COLUMNS = {PACKAGES_COLUMN_ID, PACKAGES_COLUMN_PACKAGE_NAME,
             PACKAGES_COLUMN_IS_ENABLED};
+
+    public static final String COMMA_SPACE = ", ";
+    public static final String DEFAULT_PACKAGES_SORT_ORDER = PACKAGES_COLUMN_ID + COMMA_SPACE +
+            PACKAGES_COLUMN_PACKAGE_NAME + COMMA_SPACE + PACKAGES_COLUMN_IS_ENABLED;
+
 }

@@ -17,7 +17,7 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
 
     private static final String TABLE_PACKAGES = ContractConstants.TABLE_PACKAGES;
 
-    private static final String CREATE_PACKAGES_TABLE = "CREATE " + TABLE_PACKAGES + " (" +
+    private static final String CREATE_PACKAGES_TABLE = "CREATE TABLE " + TABLE_PACKAGES + " (" +
             ContractConstants.PACKAGES_COLUMN_ID              + " TEXT NOT NULL PRIMARY KEY, "    +
             ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME    + " TEXT NOT NULL, "                +
             ContractConstants.PACKAGES_COLUMN_IS_ENABLED      + " INTEGER);";

@@ -14,6 +14,8 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.karums1.kemitor.data_access.KemitorDataResolver;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -21,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by karums1 on 12/23/2016.
@@ -147,6 +150,21 @@ public class Utils {
                 return lhs.getAppName().compareTo(rhs.getAppName());
             }
         });
+        return updateStatusInstalledApps(context, listOfApps);
+    }
+
+
+    private static ArrayList<AppModel> updateStatusInstalledApps(Context context,
+                                                                 ArrayList<AppModel>
+            listOfApps) {
+        KemitorDataResolver resolver = new KemitorDataResolver(context);
+        Map<AppModel, Boolean> dbAllApps = resolver.getAllAppModels();
+
+        for (AppModel model: listOfApps) {
+            if (dbAllApps.containsKey(model)) {
+                model.setSelected(dbAllApps.get(model));
+            }
+        }
         return listOfApps;
     }
 

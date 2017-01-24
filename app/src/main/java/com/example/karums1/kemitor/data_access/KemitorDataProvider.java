@@ -4,6 +4,7 @@ import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -101,6 +102,37 @@ public class KemitorDataProvider extends ContentProvider {
         Log.d(TAG, "Insert successful.");
 
         return Uri.parse(ContractConstants.TABLE_PACKAGES + "/" + id);
+    }
+
+    public int bulkInsert(Uri uri, ContentValues[] values){
+        int numInserted = 0;
+        String table = "";
+
+        int uriType = URI_MATCHER.match(uri);
+
+        switch (uriType) {
+            case PACKAGES:
+                table = ContractConstants.TABLE_PACKAGES;
+                break;
+            default:
+                Log.e(TAG, "Inserting into an unknown URI: " + uri);
+        }
+        SQLiteDatabase database = mKemitorHelper.getWritableDatabase();
+        database.beginTransaction();
+        try {
+            for (ContentValues cv : values) {
+                long newID = database.insertOrThrow(table, null, cv);
+                if (newID <= 0) {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+            }
+            database.setTransactionSuccessful();
+            getContext().getContentResolver().notifyChange(uri, null);
+            numInserted = values.length;
+        } finally {
+            database.endTransaction();
+        }
+        return numInserted;
     }
 
     @Override
