@@ -9,6 +9,7 @@ import android.graphics.PixelFormat;
 import android.support.v4.app.NotificationCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
@@ -93,19 +94,19 @@ public class KemitorAccessibilityService extends AccessibilityService {
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.LEFT;
 
         FrameLayout frameLayout = new FrameLayout(this);
-
-        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        windowManager.addView(frameLayout, params);
-
         LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         // Here is the place where you can inject whatever layout you want.
-        layoutInflater.inflate(R.layout.overlay_window, frameLayout);
+        View window = layoutInflater.inflate(R.layout.overlay_window, frameLayout);
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        windowManager.addView(window, params);
+
+
     }
 
     private void buildNotif(String packageName, String text) {
