@@ -1,8 +1,11 @@
 package com.example.karums1.kemitor;
 
+import android.annotation.TargetApi;
 import android.app.usage.UsageStats;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
@@ -25,6 +28,8 @@ import static com.example.karums1.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SER
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
+
+    public static int ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE = 5469;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +62,8 @@ public class MainActivity extends AppCompatActivity
         endButton.setOnClickListener(this);
         Button permButton = (Button) findViewById(R.id.permissionButton);
         permButton.setOnClickListener(this);
+        Button overlayButton = (Button) findViewById(R.id.drawOverOtherAppsButton);
+        overlayButton.setOnClickListener(this);
     }
 
     @Override
@@ -141,7 +148,37 @@ public class MainActivity extends AppCompatActivity
 //                startActivity(newAct);
                 handlePermissions(v);
                 break;
+            case R.id.drawOverOtherAppsButton:
+                handleSystemOverlayPermissions();
+                break;
         }
+    }
+
+    private void handleSystemOverlayPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                        Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == ACTION_MANAGE_OVERLAY_PERMISSION_REQUEST_CODE) {
+            if (!Settings.canDrawOverlays(this)) {
+                // You don't have permission
+                Toast.makeText(this, "Permission not granted...", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(this, "Permission granted... :)", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+
     }
 
     private boolean handleAccessibilityPermissions() {

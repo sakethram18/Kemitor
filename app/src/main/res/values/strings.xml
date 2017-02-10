@@ -6,6 +6,7 @@
     <string name="start_button">Start service</string>
     <string name="end_button">End service</string>
     <string name="permission_button">Check permissions</string>
+    <string name="draw_over_other_apps">System overlay permissions</string>
     <string name="title_activity_main2">Main2Activity</string>
     <string name="select_apps">Select Apps</string>
     <string name="save_settings">Save</string>

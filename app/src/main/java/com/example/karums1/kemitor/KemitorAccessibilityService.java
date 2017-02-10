@@ -3,9 +3,15 @@ package com.example.karums1.kemitor;
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.support.v4.app.NotificationCompat;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -74,12 +80,32 @@ public class KemitorAccessibilityService extends AccessibilityService {
         String topAppName = Utils.getTopAppName(this);
 //        if (title.equalsIgnoreCase(topAppName)) {
             buildNotif(title, description);
+        showOverlayDialog();
 //        }
     }
 
     @Override
     public void onInterrupt() {
 
+    }
+
+    private void showOverlayDialog() {
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.LEFT;
+
+        FrameLayout frameLayout = new FrameLayout(this);
+
+        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+        windowManager.addView(frameLayout, params);
+
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        // Here is the place where you can inject whatever layout you want.
+        layoutInflater.inflate(R.layout.overlay_window, frameLayout);
     }
 
     private void buildNotif(String packageName, String text) {
