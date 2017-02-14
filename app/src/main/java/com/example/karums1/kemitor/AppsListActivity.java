@@ -11,6 +11,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.example.karums1.kemitor.data_access.DataModel;
 import com.example.karums1.kemitor.data_access.KemitorDataResolver;
 
 import java.util.ArrayList;
@@ -89,8 +90,12 @@ public class AppsListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
+                //Clear cache and database before updating it with the latest apps list
+                DataModel.getInstance().clearAppsList();
                 dataResolver.deleteAllAppModels();
+                //Update cache after updating the database
                 dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
+                DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
             }
         }).start();
         ArrayList<AppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());

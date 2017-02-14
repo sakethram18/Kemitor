@@ -2,8 +2,10 @@ package com.example.karums1.kemitor;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.support.v4.app.NotificationCompat;
@@ -14,6 +16,8 @@ import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.FrameLayout;
 import android.widget.Toast;
+
+import com.example.karums1.kemitor.data_access.DataModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,12 +80,12 @@ public class KemitorAccessibilityService extends AccessibilityService {
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventId = event.getEventType();
-        String title = event.getPackageName().toString();
+        String packageName = event.getPackageName().toString();
         String description = event.toString();
         String topAppName = Utils.getTopAppName(this);
-//        if (title.equalsIgnoreCase(topAppName)) {
-            buildNotif(title, description);
-        showOverlayDialog();
+//        if (packageName.equalsIgnoreCase(topAppName)) {
+            buildNotif(packageName, description);
+        showOverlayDialog(packageName);
 //        }
     }
 
@@ -90,22 +94,41 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     }
 
-    private void showOverlayDialog() {
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-                PixelFormat.TRANSLUCENT);
-        params.gravity = Gravity.LEFT;
+    private void showOverlayDialog(String packageName) {
+//        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
+//                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+//                PixelFormat.TRANSLUCENT);
+//        params.gravity = Gravity.LEFT;
+//
+//        FrameLayout frameLayout = new FrameLayout(this);
+//        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        // Here is the place where you can inject whatever layout you want.
+//        View window = layoutInflater.inflate(R.layout.overlay_window, frameLayout);
+//        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
+//        windowManager.addView(window, params);
 
-        FrameLayout frameLayout = new FrameLayout(this);
-        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        // Here is the place where you can inject whatever layout you want.
-        View window = layoutInflater.inflate(R.layout.overlay_window, frameLayout);
-        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-        windowManager.addView(window, params);
+        String appName = DataModel.getInstance().getAppName(packageName);
+        String message = String.format(getString(R.string.sure_enter_app_description), appName);
+        AlertDialog alertDialog = new AlertDialog.Builder(this)
+                .setTitle(getString(R.string.enter_app))
+                .setMessage(message)
+                .setPositiveButton("Enter", null)
+                .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Intent startMain = new Intent(Intent.ACTION_MAIN);
+                        startMain.addCategory(Intent.CATEGORY_HOME);
+                        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(startMain);
+                    }
+                })
+                .create();
 
+        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+        alertDialog.show();
 
     }
 

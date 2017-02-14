@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Kemitor</string>
+    <string name="enter_app">Enter App?</string>
+    <string name="sure_enter_app_description">You are about to launch app, %1$s!</string>
+    <string name="enter_button">Enter</string>
+    <string name="quit_button">Quit</string>
     <string name="app_icon">Package icon</string>
     <string name="action_settings">Settings</string>
     <string name="user_name">Hello, Kemitor</string>
