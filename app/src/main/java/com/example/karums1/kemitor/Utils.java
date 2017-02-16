@@ -6,7 +6,10 @@ import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.provider.Settings;
@@ -125,6 +128,34 @@ public class Utils {
             Log.d(TAG, "***ACCESSIBILITY IS DISABLED***");
         }
         return false;
+    }
+
+    public static ArrayList<AppModel> getLauncherApps(Context context) {
+        PackageManager pm = context.getPackageManager();
+        Intent i = new Intent(Intent.ACTION_MAIN);
+        i.addCategory(Intent.CATEGORY_HOME);
+        List<ResolveInfo> lst = pm.queryIntentActivities(i, 0);
+        ArrayList<AppModel> launcherApps = new ArrayList<>();
+        for (ResolveInfo resolveInfo : lst) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            String appName = (String) resolveInfo.activityInfo.loadLabel(pm);
+            Drawable icon = resolveInfo.activityInfo.loadLogo(pm);
+            AppModel app = new AppModel(packageName, appName, icon, true);
+            launcherApps.add(app);
+            Log.d("Test", "New Launcher Found: " + resolveInfo.activityInfo.packageName);
+        }
+        // Also add System UI if it doesn't exist.
+        String sUI = "com.android.systemui";
+        try {
+            AppModel systemUI = new AppModel(sUI, "System UI", pm.getApplicationIcon(sUI), true);
+            if (!launcherApps.contains(systemUI)) {
+                launcherApps.add(systemUI);
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Package not found: " + sUI);
+            e.printStackTrace();
+        }
+        return launcherApps;
     }
 
     public static ArrayList<AppModel> getInstalledApps(Context context) {

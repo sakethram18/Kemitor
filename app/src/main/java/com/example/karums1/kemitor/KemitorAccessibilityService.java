@@ -69,14 +69,6 @@ public class KemitorAccessibilityService extends AccessibilityService {
         }
     }
 
-    private ArrayList<String> getPackageNameList(ArrayList<AppModel> selectedApps) {
-        ArrayList<String> packageNamesList = new ArrayList<>();
-        for(AppModel model: selectedApps) {
-            packageNamesList.add(model.getPackageName());
-        }
-        return packageNamesList;
-    }
-
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventId = event.getEventType();
