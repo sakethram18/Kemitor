@@ -1,8 +1,7 @@
-package com.example.karums1.kemitor;
+package com.example.karums1.kemitor.presentation.widgets;
 
 import android.content.Context;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -10,6 +9,9 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.example.karums1.kemitor.R;
+import com.example.karums1.kemitor.data_access.AppModel;
 
 import java.util.ArrayList;
 

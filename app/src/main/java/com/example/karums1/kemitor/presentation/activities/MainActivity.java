@@ -1,8 +1,7 @@
-package com.example.karums1.kemitor;
+package com.example.karums1.kemitor.presentation.activities;
 
 import android.annotation.TargetApi;
 import android.app.usage.UsageStats;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -21,6 +20,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.Toast;
+
+import com.example.karums1.kemitor.KemitorAccessibilityService;
+import com.example.karums1.kemitor.R;
+import com.example.karums1.kemitor.Utils;
+import com.example.karums1.kemitor.presentation.activities.AppsListActivity;
 
 import java.util.List;
 

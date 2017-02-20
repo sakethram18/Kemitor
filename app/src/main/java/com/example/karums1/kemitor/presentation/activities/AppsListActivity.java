@@ -1,4 +1,4 @@
-package com.example.karums1.kemitor;
+package com.example.karums1.kemitor.presentation.activities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,6 +11,12 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
+import com.example.karums1.kemitor.AppConstants;
+import com.example.karums1.kemitor.presentation.widgets.AppsArrayAdapter;
+import com.example.karums1.kemitor.KemitorAccessibilityService;
+import com.example.karums1.kemitor.R;
+import com.example.karums1.kemitor.Utils;
+import com.example.karums1.kemitor.data_access.AppModel;
 import com.example.karums1.kemitor.data_access.DataModel;
 import com.example.karums1.kemitor.data_access.KemitorDataResolver;
 

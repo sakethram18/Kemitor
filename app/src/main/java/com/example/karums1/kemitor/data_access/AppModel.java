@@ -1,4 +1,4 @@
-package com.example.karums1.kemitor;
+package com.example.karums1.kemitor.data_access;
 
 import android.graphics.drawable.Drawable;
 

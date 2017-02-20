@@ -5,7 +5,7 @@
     android:id="@+id/activity_apps_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.karums1.kemitor.AppsListActivity">
+    tools:context="com.example.karums1.kemitor.presentation.activities.AppsListActivity">
 
     <ProgressBar
         android:layout_width="wrap_content"

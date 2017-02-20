@@ -4,17 +4,11 @@ import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AlertDialog;
 import android.app.NotificationManager;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.PixelFormat;
 import android.support.v4.app.NotificationCompat;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.example.karums1.kemitor.data_access.DataModel;
@@ -104,7 +98,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
         String appName = DataModel.getInstance().getAppName(packageName);
         String message = String.format(getString(R.string.sure_enter_app_description), appName);
-        AlertDialog alertDialog = new AlertDialog.Builder(this)
+        AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.OverlayDialog)
                 .setTitle(getString(R.string.enter_app))
                 .setMessage(message)
                 .setPositiveButton("Enter", null)

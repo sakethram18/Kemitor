@@ -1,9 +1,5 @@
 package com.example.karums1.kemitor.data_access;
 
-import android.widget.ArrayAdapter;
-
-import com.example.karums1.kemitor.AppModel;
-
 import java.util.ArrayList;
 
 /**

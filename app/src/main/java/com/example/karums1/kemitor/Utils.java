@@ -17,6 +17,7 @@ import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.karums1.kemitor.data_access.AppModel;
 import com.example.karums1.kemitor.data_access.KemitorDataResolver;
 
 import java.text.SimpleDateFormat;
