@@ -2,12 +2,10 @@ package com.example.karums1.kemitor;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
@@ -26,12 +24,17 @@ public class KemitorAccessibilityService extends AccessibilityService {
     Map<String, Integer> mNotificationIdMap = new HashMap<>();
     AtomicInteger mNotificationId = new AtomicInteger();
 
+    KemitorOverlayAlert mOverlayAlert = null;
+    boolean mIsLauncherApp = true;
+    boolean mIsUserChosenEnter = false;
+
     public KemitorAccessibilityService() {
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Accessibility service starting", Toast.LENGTH_SHORT).show();
+        mOverlayAlert = KemitorOverlayAlert.getOverlayAlert(this);
         setServiceConfiguration(intent);
         // If we get killed, after returning from here, restart
         return START_STICKY;
@@ -63,14 +66,21 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        int eventId = event.getEventType();
         String packageName = event.getPackageName().toString();
         String description = event.toString();
-        String topAppName = Utils.getTopAppName(this);
-//        if (packageName.equalsIgnoreCase(topAppName)) {
-            buildNotif(packageName, description);
-        showOverlayDialog(packageName);
-//        }
+        buildNotif(packageName, description);
+//        showOverlayDialog(packageName);
+        DataModel model = DataModel.getInstance();
+        if (model.getIsLauncherApp(packageName)) {
+            mIsLauncherApp = true;
+            mIsUserChosenEnter = false;
+        } else {
+            if (mIsLauncherApp) {
+                if (!mIsUserChosenEnter && !mOverlayAlert.isAlertShowing()) {
+                    showOverlayDialog(packageName);
+                }
+            }
+        }
     }
 
     @Override
@@ -94,11 +104,23 @@ public class KemitorAccessibilityService extends AccessibilityService {
 //        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
 //        windowManager.addView(window, params);
 
-        String appName = DataModel.getInstance().getAppName(packageName);
+        String appName = DataModel.getInstance().getAppModel(packageName).getAppName();
         String message = String.format(getString(R.string.sure_enter_app_description), appName);
-        KemitorOverlayAlert alert = KemitorOverlayAlert.getOverlayAlert(this);
-        alert.createOverlayAlert(getString(R.string.enter_app), message);
-        alert.showAlert();
+        mOverlayAlert.createOverlayAlert(getString(R.string.enter_app), message, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mIsUserChosenEnter = true;
+            }
+        }, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent startMain = new Intent(Intent.ACTION_MAIN);
+                startMain.addCategory(Intent.CATEGORY_HOME);
+                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(startMain);
+            }
+        });
+        mOverlayAlert.showAlert();
     }
 
     private void buildNotif(String packageName, String text) {

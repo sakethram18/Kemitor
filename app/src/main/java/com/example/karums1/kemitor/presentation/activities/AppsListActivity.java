@@ -102,7 +102,6 @@ public class AppsListActivity extends AppCompatActivity {
                 //Update cache after updating the database
                 dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
                 DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
-                DataModel.getInstance().updateAppLauncherApps(Utils.getLauncherApps());
             }
         }).start();
         ArrayList<AppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());

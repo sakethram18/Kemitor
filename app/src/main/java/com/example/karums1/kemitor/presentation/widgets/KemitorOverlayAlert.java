@@ -29,20 +29,13 @@ public class KemitorOverlayAlert {
         return mOverlayAlert;
     }
 
-    public void createOverlayAlert(String title, String message) {
+    public void createOverlayAlert(String title, String message, DialogInterface.OnClickListener
+            onDoneListener, DialogInterface.OnClickListener onCancelListener) {
         mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("Enter", null)
-                .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent startMain = new Intent(Intent.ACTION_MAIN);
-                        startMain.addCategory(Intent.CATEGORY_HOME);
-                        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        mContext.startActivity(startMain);
-                    }
-                })
+                .setPositiveButton("Enter", onDoneListener)
+                .setNegativeButton("Quit", onCancelListener)
                 .create();
         // Disables back key when dialog is displayed
         mDialog.setCancelable(false);
@@ -64,6 +57,10 @@ public class KemitorOverlayAlert {
             mDialog.dismiss();
             mDialog = null;
         }
+    }
+
+    public boolean isAlertShowing() {
+        return mDialog != null && mDialog.isShowing();
     }
 
 

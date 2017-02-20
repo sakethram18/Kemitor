@@ -28,11 +28,11 @@ public class DataModel {
         }
     }
 
-    public String getAppName(String packageName) {
+    public AppModel getAppModel(String packageName) {
         if (mAppsList != null) {
             for (AppModel model: mAppsList) {
                 if (model.getPackageName().equalsIgnoreCase(packageName)) {
-                    return model.getAppName();
+                    return model;
                 }
             }
             throw new IllegalArgumentException("Package not found: " + packageName);
@@ -40,6 +40,10 @@ public class DataModel {
             throw new IllegalArgumentException("Attempting to access the following package when " +
                     "service not running: " + packageName);
         }
+    }
+
+    public boolean getIsLauncherApp(String packageName) {
+        return mLauncherApps.contains(getAppModel(packageName));
     }
 
     public void clearAppsList() {
@@ -53,10 +57,6 @@ public class DataModel {
             throw new IllegalArgumentException("Apps list cache should be cleared before updating" +
                     ".");
         }
-    }
-
-    public void updateAppLauncherApps(ArrayList<AppModel> launcherApps) {
-        mLauncherApps.addAll(launcherApps);
     }
 
     public ArrayList<AppModel> getLauncherApps(boolean isLoadAgain) {
