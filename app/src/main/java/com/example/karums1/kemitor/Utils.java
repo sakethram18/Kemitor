@@ -131,8 +131,8 @@ public class Utils {
         return false;
     }
 
-    public static ArrayList<AppModel> getLauncherApps(Context context) {
-        PackageManager pm = context.getPackageManager();
+    public static ArrayList<AppModel> getLauncherApps() {
+        PackageManager pm = KemitorApplication.getAppContext().getPackageManager();
         Intent i = new Intent(Intent.ACTION_MAIN);
         i.addCategory(Intent.CATEGORY_HOME);
         List<ResolveInfo> lst = pm.queryIntentActivities(i, 0);

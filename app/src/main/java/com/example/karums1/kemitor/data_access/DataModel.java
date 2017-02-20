@@ -1,5 +1,7 @@
 package com.example.karums1.kemitor.data_access;
 
+import com.example.karums1.kemitor.Utils;
+
 import java.util.ArrayList;
 
 /**
@@ -11,6 +13,7 @@ public class DataModel {
     // This should get refreshed every time the user saves preferences from the list of apps
     // It acts as a cache to avoid db calls every time
     private ArrayList<AppModel> mAppsList;
+    private ArrayList<AppModel> mLauncherApps = new ArrayList<>();
 
     public static synchronized DataModel getInstance() {
         if (mModel == null) {
@@ -50,6 +53,18 @@ public class DataModel {
             throw new IllegalArgumentException("Apps list cache should be cleared before updating" +
                     ".");
         }
+    }
+
+    public void updateAppLauncherApps(ArrayList<AppModel> launcherApps) {
+        mLauncherApps.addAll(launcherApps);
+    }
+
+    public ArrayList<AppModel> getLauncherApps(boolean isLoadAgain) {
+        if (isLoadAgain || mLauncherApps.size() == 0) {
+            mLauncherApps.clear();
+            mLauncherApps = Utils.getLauncherApps();
+        }
+        return mLauncherApps;
     }
 
     public ArrayList<AppModel> getAppsList() {

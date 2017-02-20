@@ -12,6 +12,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 import com.example.karums1.kemitor.data_access.DataModel;
+import com.example.karums1.kemitor.presentation.widgets.KemitorOverlayAlert;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,19 +45,16 @@ public class KemitorAccessibilityService extends AccessibilityService {
         } else {
             ArrayList<String> selectedAppsStr = intent.getStringArrayListExtra(AppConstants
                     .LIST_OF_SELECTED_APPS);
-//            ArrayList<AppModel> selectedApps = new Gson().fromJson(selectedAppsStr,
-//                    new TypeToken<List<AppModel>>(){}.getType());
-
             AccessibilityServiceInfo info = new AccessibilityServiceInfo();
 //            info.eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED |
 //                    AccessibilityEvent.TYPE_VIEW_FOCUSED |
 //                    AccessibilityEvent.TYPE_VIEW_CLICKED |
 //                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 
+            //TODO: The service should also listen to any new launcher apps being installed
+            // while it is running in the background
             info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-
             info.packageNames = (selectedAppsStr.toArray(new String[0]));
-
             info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
             info.notificationTimeout = 100;
             this.setServiceInfo(info);
@@ -98,24 +96,9 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
         String appName = DataModel.getInstance().getAppName(packageName);
         String message = String.format(getString(R.string.sure_enter_app_description), appName);
-        AlertDialog alertDialog = new AlertDialog.Builder(this, R.style.OverlayDialog)
-                .setTitle(getString(R.string.enter_app))
-                .setMessage(message)
-                .setPositiveButton("Enter", null)
-                .setNegativeButton("Quit", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Intent startMain = new Intent(Intent.ACTION_MAIN);
-                        startMain.addCategory(Intent.CATEGORY_HOME);
-                        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(startMain);
-                    }
-                })
-                .create();
-
-        alertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-        alertDialog.show();
-
+        KemitorOverlayAlert alert = KemitorOverlayAlert.getOverlayAlert(this);
+        alert.createOverlayAlert(getString(R.string.enter_app), message);
+        alert.showAlert();
     }
 
     private void buildNotif(String packageName, String text) {

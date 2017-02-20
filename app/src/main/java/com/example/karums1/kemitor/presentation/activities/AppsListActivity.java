@@ -102,9 +102,11 @@ public class AppsListActivity extends AppCompatActivity {
                 //Update cache after updating the database
                 dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
                 DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
+                DataModel.getInstance().updateAppLauncherApps(Utils.getLauncherApps());
             }
         }).start();
         ArrayList<AppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());
+        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
         Intent serviceIntent = new Intent(this, KemitorAccessibilityService.class);
         serviceIntent.putExtra(AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
         serviceIntent.putStringArrayListExtra(AppConstants.LIST_OF_SELECTED_APPS,
