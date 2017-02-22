@@ -110,6 +110,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mIsUserChosenEnter = true;
+                dialogInterface.dismiss();
             }
         }, new DialogInterface.OnClickListener() {
             @Override
@@ -118,6 +119,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
                 startMain.addCategory(Intent.CATEGORY_HOME);
                 startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startMain);
+                dialogInterface.dismiss();
             }
         });
         mOverlayAlert.showAlert();

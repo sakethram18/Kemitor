@@ -1,5 +1,8 @@
 <resources>
     <string name="app_name">Kemitor</string>
+
+    // AdMob Unit ID
+    <string name="banner_ad_unit_id">ca-app-pub-3940256099942544/6300978111</string>
     <string name="enter_app">Enter App?</string>
     <string name="sure_enter_app_description">You are about to launch app, %1$s!</string>
     <string name="enter_button">Enter</string>

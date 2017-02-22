@@ -3,7 +3,6 @@ package com.example.karums1.kemitor.presentation.widgets;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.view.WindowManager;
 
 import com.example.karums1.kemitor.R;
