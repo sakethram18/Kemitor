@@ -18,18 +18,27 @@ import android.widget.LinearLayout;
 import com.example.karums1.kemitor.R;
 import com.example.karums1.kemitor.data_access.ProfileCardModel;
 import com.example.karums1.kemitor.presentation.widgets.ProfileCardsAdapter;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import java.util.ArrayList;
 
 public class ProfileCardsActivity extends AppCompatActivity {
     private static String LOG_TAG = "ProfileCardsActivity";
     private RecyclerView.Adapter mAdapter;
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_cards);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle(getString(R.string.profiles));
+
+        mAdView = (AdView) findViewById(R.id.adViewProfiles);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
+
         final RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
@@ -40,6 +49,7 @@ public class ProfileCardsActivity extends AppCompatActivity {
 
         FloatingActionButton fabAddProfile = (FloatingActionButton) findViewById(R.id
                 .fabAddProfile);
+        fabAddProfile.setImageResource(R.drawable.ic_add_white_18dp);
         fabAddProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
