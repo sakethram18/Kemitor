@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "330566725133",
+    "firebase_url": "https://kemitor-3cf3d.firebaseio.com",
+    "project_id": "kemitor-3cf3d",
+    "storage_bucket": "kemitor-3cf3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:330566725133:android:0a632b32c7e43023",
+        "android_client_info": {
+          "package_name": "com.example.karums1.kemitor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "330566725133-10ti64e2ut883pf7n57sstpe3rlmndh4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.karums1.kemitor",
+            "certificate_hash": "8012733588c8e96410c00ef8860e94f62cb604f4"
+          }
+        },
+        {
+          "client_id": "330566725133-02r615c4btf0q742cj0hoo3tk87meckh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB8RH4Rl7l1xzEr-C3B73SxMT27ihjv4IM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "330566725133-02r615c4btf0q742cj0hoo3tk87meckh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

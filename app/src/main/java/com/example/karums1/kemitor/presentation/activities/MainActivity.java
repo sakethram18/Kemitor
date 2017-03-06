@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        FirebaseCrash.log("Activity created");
-        FirebaseCrash.logcat(Log.ERROR, "MainActivity", "NPE caught");
-        FirebaseCrash.report(new Exception("Test exception"));
+//        FirebaseCrash.log("Activity created");
+//        FirebaseCrash.logcat(Log.ERROR, "MainActivity", "NPE caught");
+//        FirebaseCrash.report(new Exception("Test exception"));
         mAdView = (AdView) findViewById(R.id.adView);
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd(adRequest);
@@ -124,7 +124,8 @@ public class MainActivity extends AppCompatActivity
             Intent appsActivity = new Intent(this, AppsListActivity.class);
             startActivity(appsActivity);
         } else if (id == R.id.nav_gallery) {
-
+            Intent profileCardsActivity = new Intent(this, ProfileCardsActivity.class);
+            startActivity(profileCardsActivity);
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {

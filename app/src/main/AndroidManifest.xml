@@ -9,7 +9,9 @@
         tools:ignore="ProtectedPermissions"/>
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"/>
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <application android:name=".KemitorApplication"
+
+    <application
+        android:name=".KemitorApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -40,8 +42,11 @@
 
         <provider
             android:name=".data_access.KemitorDataProvider"
-            android:authorities="com.example.karums1.kemitordataprovider" >
+            android:authorities="com.example.karums1.kemitordataprovider">
         </provider>
+
+        <activity android:name=".presentation.activities.ProfileCardsActivity">
+        </activity>
     </application>
 
 </manifest>
