@@ -1,6 +1,7 @@
 package com.example.karums1.kemitor.presentation.activities;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import com.example.karums1.kemitor.KemitorApplication;
 import com.example.karums1.kemitor.R;
 import com.example.karums1.kemitor.data_access.ProfileCardModel;
 import com.example.karums1.kemitor.presentation.widgets.ProfileCardsAdapter;
@@ -66,6 +68,8 @@ public class ProfileCardsActivity extends AppCompatActivity {
                 .MyClickListener() {
             @Override
             public void onItemClick(int position, View v) {
+                Intent appsActivity = new Intent(ProfileCardsActivity.this, AppsListActivity.class);
+                startActivity(appsActivity);
             }
 
             @Override
