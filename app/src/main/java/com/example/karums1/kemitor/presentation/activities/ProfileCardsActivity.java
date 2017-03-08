@@ -66,12 +66,10 @@ public class ProfileCardsActivity extends AppCompatActivity {
                 .MyClickListener() {
             @Override
             public void onItemClick(int position, View v) {
-                ((ProfileCardsAdapter) mAdapter).deleteItem(position);
             }
 
             @Override
             public void onItemLongClickListener(int position, View v) {
-                v.setElevation(12);
             }
         });
     }

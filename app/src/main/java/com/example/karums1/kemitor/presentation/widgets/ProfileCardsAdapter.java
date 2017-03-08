@@ -1,15 +1,15 @@
 package com.example.karums1.kemitor.presentation.widgets;
 
+import android.content.res.Resources;
 import android.support.v7.widget.RecyclerView;
-import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.example.karums1.kemitor.KemitorApplication;
 import com.example.karums1.kemitor.R;
 import com.example.karums1.kemitor.data_access.ProfileCardModel;
 
@@ -37,18 +37,42 @@ public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapte
             implements View.OnClickListener, View.OnLongClickListener {
         TextView mProfileName;
         TextView mSettingsType;
-        TextView mProfileName2;
-        TextView mSettingsType2;
+        TextView mBlockLevel;
+        TextView mBlockDescription;
         Switch mIsProfileSelected;
+        SeekBar mSeekbar;
 
         public DataObjectHolder(View itemView) {
             super(itemView);
             mProfileName = (TextView) itemView.findViewById(R.id.profileName);
             mSettingsType = (TextView) itemView.findViewById(R.id.settingsType);
-            mProfileName2 = (TextView) itemView.findViewById(R.id.profileName2);
-            mSettingsType2 = (TextView) itemView.findViewById(R.id.settingsType2);
+            mBlockLevel = (TextView) itemView.findViewById(R.id.block_level_label);
+            mBlockDescription = (TextView) itemView.findViewById(R.id.block_level_description);
             mIsProfileSelected = (Switch) itemView.findViewById(R.id.switchIsProfileSelected);
+            mSeekbar = (SeekBar) itemView.findViewById(R.id.seekBarFocusLevel);
+
             itemView.setOnClickListener(this);
+            mSeekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                    Resources res = KemitorApplication.getAppContext().getResources();
+                    String[] strictnessLevel = res.getStringArray(R.array.strictness_level);
+                    String[] strictnessDescription = res.getStringArray(R.array
+                            .strictness_level_description);
+                    mBlockLevel.setText(strictnessLevel[progress]);
+                    mBlockDescription.setText(strictnessDescription[progress]);
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
         }
 
         @Override
@@ -82,19 +106,7 @@ public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapte
         holder.mProfileName.setText(mDataset.get(position).getProfileName());
         holder.mSettingsType.setText(mDataset.get(position).getSettingsType());
         holder.mIsProfileSelected.setChecked(mDataset.get(position).isProfileSelected());
-        holder.mIsProfileSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mDataset.get(holder.getAdapterPosition()).setIsProfileSelected(isChecked);
-                if (isChecked) {
-                    holder.mProfileName2.setVisibility(View.VISIBLE);
-                    holder.mSettingsType2.setVisibility(View.VISIBLE);
-                } else {
-                    holder.mProfileName2.setVisibility(View.GONE);
-                    holder.mSettingsType2.setVisibility(View.GONE);
-                }
-            }
-        });
+        holder.mSeekbar.setProgress(0);
     }
 
     public void addItem(ProfileCardModel dataObj, int index) {

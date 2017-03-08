@@ -17,7 +17,6 @@
     <string name="end_button">End service</string>
     <string name="permission_button">Check permissions</string>
     <string name="draw_over_other_apps">System overlay permissions</string>
-    <string name="title_activity_main2">Main2Activity</string>
     <string name="select_apps">Select Apps</string>
     <string name="save_settings">Save</string>
     <string name="profile_name">Profile Name</string>
@@ -25,7 +24,19 @@
     <string name="ok_text">OK</string>
     <string name="cancel_text">Cancel</string>
     <string name="profiles">Profiles</string>
-
+    <string name="block_strictness">Block strictness:\u0020</string>
+    <string-array name="strictness_level">
+        <item>Level 1</item>
+        <item>Level 2</item>
+        <item>Level 3</item>
+        <item>Level 4</item>
+    </string-array>
+    <string-array name="strictness_level_description">
+        <item>Snooze blocking unlimited number of times</item>
+        <item>Type in a meaningful sentence to unblock</item>
+        <item>Type in a long meaningless sentence to unblock</item>
+        <item>Block every attempt no matter what</item>
+    </string-array>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 </resources>
