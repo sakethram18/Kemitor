@@ -16,6 +16,8 @@ public class AppModel {
     private String mAppName = "";
     private Drawable mAppIcon;
     private boolean mIsSelected;
+    private String mProfileId = "";
+    private BlockLevel mBlockLevel = BlockLevel.DefaultNotSet;
 
     public AppModel(String packageName, String appName , Drawable appIcon) {
         this.mPackageName = packageName;
@@ -62,6 +64,22 @@ public class AppModel {
 
     public String getUniqueId() {
         return mUniqueId;
+    }
+
+    public String getProfileId() {
+        return mProfileId;
+    }
+
+    public void setProfileId(String mProfileId) {
+        this.mProfileId = mProfileId;
+    }
+
+    public BlockLevel getBlockLevel() {
+        return mBlockLevel;
+    }
+
+    public void setBlockLevel(BlockLevel mBlockLevel) {
+        this.mBlockLevel = mBlockLevel;
     }
 
     @Override
