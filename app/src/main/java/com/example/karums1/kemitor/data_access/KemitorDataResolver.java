@@ -38,6 +38,8 @@ public class KemitorDataResolver {
             values.put(ContractConstants.PACKAGES_COLUMN_ID, uniqueId.toString());
             values.put(ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME, model.getPackageName());
             values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
+            values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
+            values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
                     .TABLE_PACKAGES);
             Uri resultUri = mContext.getContentResolver().insert(uri, values);
@@ -60,6 +62,8 @@ public class KemitorDataResolver {
                 values.put(ContractConstants.PACKAGES_COLUMN_ID, uniqueId.toString());
                 values.put(ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME, model.getPackageName());
                 values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
+                values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
+                values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
                 model.setUniqueId(uniqueId.toString());
                 listValues[i] = values;
             }
@@ -85,6 +89,8 @@ public class KemitorDataResolver {
             ContentValues values = new ContentValues();
             values.put(ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME, model.getPackageName());
             values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
+            values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
+            values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
 
             String selection = ContractConstants.PACKAGES_COLUMN_ID + "=?";
             String[] args = new String[1];
@@ -142,9 +148,12 @@ public class KemitorDataResolver {
                 int index = 0;
                 String uniqueId = cursor.getString(index++);
                 String packageName = cursor.getString(index++);
-                int isEnabled = cursor.getInt(index);
+                int isSelected = cursor.getInt(index);
+                String profileIds = cursor.getString(index++);
+                int packageBlockLevel = cursor.getInt(index);
 
-                AppModel model = new AppModel(uniqueId, packageName, isEnabled == 1);
+                AppModel model = new AppModel(uniqueId, packageName, isSelected == 1, profileIds,
+                        BlockLevel.getBlockLevelFromValue(packageBlockLevel));
                 packages.put(model, model.isSelected());
                 cursor.moveToNext();
             }

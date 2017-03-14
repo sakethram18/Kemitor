@@ -32,10 +32,14 @@ public class AppModel {
         this.mIsSelected = isSelected;
     }
 
-    public AppModel(String uniqueId, String packageName, boolean isSelected) {
+    public AppModel(String uniqueId, String packageName, boolean isSelected, String profileIds,
+                    BlockLevel blockLevel) {
         this.mUniqueId = uniqueId;
         this.mPackageName = packageName;
         this.mIsSelected = isSelected;
+        // TODO: Make sure to handle multiple profile Id's in this case
+        this.mProfileId = profileIds;
+        this.mBlockLevel = blockLevel;
     }
 
     public String getPackageName() {

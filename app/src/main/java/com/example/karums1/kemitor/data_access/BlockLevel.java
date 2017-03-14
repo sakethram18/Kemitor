@@ -21,4 +21,16 @@ public enum BlockLevel {
         return mBlockLevel;
     }
 
+    public static BlockLevel getBlockLevelFromValue(int value) {
+        switch (value) {
+            case 0: return DefaultNotSet;
+            case 1: return LevelOne;
+            case 2: return LevelTwo;
+            case 3: return LevelThree;
+            case 4: return LevelFour;
+            default:
+                throw new IllegalArgumentException("Block level not valid");
+        }
+    }
+
 }
