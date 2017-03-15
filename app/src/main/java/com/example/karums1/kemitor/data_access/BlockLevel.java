@@ -5,11 +5,10 @@ package com.example.karums1.kemitor.data_access;
  */
 public enum BlockLevel {
 
-    DefaultNotSet(0),
-    LevelOne(1), // Less stricter
-    LevelTwo(2),
-    LevelThree(3),
-    LevelFour(4); // Much stricter
+    LevelOne(0), // Less stricter
+    LevelTwo(1),
+    LevelThree(2),
+    LevelFour(3); // Much stricter
 
     private final int mBlockLevel;
 
@@ -23,11 +22,10 @@ public enum BlockLevel {
 
     public static BlockLevel getBlockLevelFromValue(int value) {
         switch (value) {
-            case 0: return DefaultNotSet;
-            case 1: return LevelOne;
-            case 2: return LevelTwo;
-            case 3: return LevelThree;
-            case 4: return LevelFour;
+            case 0: return LevelOne;
+            case 1: return LevelTwo;
+            case 2: return LevelThree;
+            case 3: return LevelFour;
             default:
                 throw new IllegalArgumentException("Block level not valid");
         }

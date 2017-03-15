@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,7 +67,8 @@ public class KemitorDataResolver {
             values.put(ContractConstants.PROFILES_COLUMN_ID, uniqueId.toString());
             values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
             values.put(ContractConstants.PROFILES_COLUMN_IS_ENABLED, model.isEnabled() ? 1:0);
-            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model.isProfileLevelSetting());
+            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model
+                    .isProfileLevelSetting() ? 1:0);
             values.put(ContractConstants.PROFILES_COLUMN_BLOCK_LEVEL, model.getProfileBlockLevel().getLevel());
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
                     .TABLE_PROFILES);
@@ -145,7 +147,8 @@ public class KemitorDataResolver {
             ContentValues values = new ContentValues();
             values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
             values.put(ContractConstants.PROFILES_COLUMN_IS_ENABLED, model.isEnabled() ? 1:0);
-            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model.isProfileLevelSetting());
+            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model
+                    .isProfileLevelSetting() ? 1:0);
             values.put(ContractConstants.PROFILES_COLUMN_BLOCK_LEVEL, model.getProfileBlockLevel().getLevel());
 
             String selection = ContractConstants.PROFILES_COLUMN_ID + "=?";
@@ -235,7 +238,7 @@ public class KemitorDataResolver {
         return packages;
     }
 
-    public Map<ProfileModel, Boolean> getAllProfileModel() {
+    public ArrayList<ProfileModel> getAllProfileModel() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PROFILES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
@@ -243,22 +246,22 @@ public class KemitorDataResolver {
         return cursorToProfileModel(cursor);
     }
 
-    private Map<ProfileModel, Boolean> cursorToProfileModel(Cursor cursor) {
-        Map<ProfileModel, Boolean> profiles = new HashMap<>();
+    private ArrayList<ProfileModel> cursorToProfileModel(Cursor cursor) {
+        ArrayList<ProfileModel> profiles = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
             while(!cursor.isAfterLast()) {
                 int index = 0;
                 String uniqueId = cursor.getString(index++);
                 String profileName = cursor.getString(index++);
-                int isEnabled = cursor.getInt(index);
+                int isEnabled = cursor.getInt(index++);
                 int isProfileLevelSetting = cursor.getInt(index++);
                 int profileBlockLevel = cursor.getInt(index);
 
                 ProfileModel model = new ProfileModel(uniqueId, profileName, isEnabled == 1,
                         isProfileLevelSetting == 1, BlockLevel.getBlockLevelFromValue
                         (profileBlockLevel));
-                profiles.put(model, model.isEnabled());
+                profiles.add(model);
                 cursor.moveToNext();
             }
             cursor.close();

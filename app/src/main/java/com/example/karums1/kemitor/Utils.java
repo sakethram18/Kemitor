@@ -19,6 +19,7 @@ import android.util.Log;
 
 import com.example.karums1.kemitor.data_access.AppModel;
 import com.example.karums1.kemitor.data_access.KemitorDataResolver;
+import com.example.karums1.kemitor.data_access.ProfileModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -198,6 +199,11 @@ public class Utils {
             }
         }
         return listOfApps;
+    }
+
+    public static ArrayList<ProfileModel> getSavedProfiles(Context context) {
+        KemitorDataResolver resolver = new KemitorDataResolver(context);
+        return resolver.getAllProfileModel();
     }
 
     public static String getTopAppName(Context context) {

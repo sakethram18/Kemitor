@@ -7,6 +7,15 @@
                 android:clipToPadding="false"
                 tools:context=".presentation.activities.ProfileCardsActivity">
 
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@android:style/Widget.Material.ProgressBar"
+        android:id="@+id/progressBarProfiles"
+        android:indeterminateTintMode="src_atop"
+        android:indeterminateTint="@color/colorPrimaryDark"
+        android:layout_centerInParent="true"/>
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_recycler_view"
         android:layout_width="match_parent"

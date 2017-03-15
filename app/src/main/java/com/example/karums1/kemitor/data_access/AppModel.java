@@ -17,7 +17,7 @@ public class AppModel {
     private Drawable mAppIcon;
     private boolean mIsSelected;
     private String mProfileId = "";
-    private BlockLevel mBlockLevel = BlockLevel.DefaultNotSet;
+    private BlockLevel mBlockLevel = BlockLevel.LevelOne;
 
     public AppModel(String packageName, String appName , Drawable appIcon) {
         this.mPackageName = packageName;

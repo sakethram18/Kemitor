@@ -10,7 +10,7 @@ public class ProfileModel {
     private String mProfileName = "";
     private boolean mIsEnabled;
     private boolean mIsProfileLevelSetting;
-    private BlockLevel mProfileBlockLevel = BlockLevel.DefaultNotSet;
+    private BlockLevel mProfileBlockLevel = BlockLevel.LevelOne;
 
     public ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
             isProfileLevelSetting, BlockLevel profileBlockLevel) {

@@ -1,7 +1,9 @@
 package com.example.karums1.kemitor.presentation.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -9,12 +11,16 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 
 import com.example.karums1.kemitor.R;
+import com.example.karums1.kemitor.Utils;
+import com.example.karums1.kemitor.data_access.KemitorDataResolver;
 import com.example.karums1.kemitor.data_access.ProfileModel;
 import com.example.karums1.kemitor.presentation.widgets.ProfileCardsAdapter;
 import com.google.android.gms.ads.AdRequest;
@@ -25,11 +31,15 @@ import java.util.ArrayList;
 public class ProfileCardsActivity extends AppCompatActivity {
     private static String LOG_TAG = "ProfileCardsActivity";
     private RecyclerView.Adapter mAdapter;
+    private ArrayList<ProfileModel> mProfiles;
     private AdView mAdView;
+    private Context mContext;
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
         setContentView(R.layout.activity_profile_cards);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(getString(R.string.profiles));
@@ -42,11 +52,41 @@ public class ProfileCardsActivity extends AppCompatActivity {
         mRecyclerView.setHasFixedSize(true);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(this);
         mRecyclerView.setLayoutManager(mLayoutManager);
-        mAdapter = new ProfileCardsAdapter(getDataSet());
-        mRecyclerView.setAdapter(mAdapter);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBarProfiles);
+        final Handler handler = new Handler();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mProfiles = Utils.getSavedProfiles(mContext);
+                mAdapter = new ProfileCardsAdapter(mContext, mProfiles);
+
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mRecyclerView.setAdapter(mAdapter);
+                        mProgressBar.setVisibility(View.GONE);
+                    }
+                });
+                ((ProfileCardsAdapter) mAdapter).setOnItemClickListener(new ProfileCardsAdapter
+                        .MyClickListener() {
+                    @Override
+                    public void onItemClick(int position, View v) {
+                        Intent appsActivity = new Intent(ProfileCardsActivity.this, AppsListActivity.class);
+                        startActivity(appsActivity);
+                    }
+
+                    @Override
+                    public void onItemLongClickListener(int position, View v) {
+                    }
+                });
+
+            }
+        }).start();
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        FloatingActionButton fabAddProfile = (FloatingActionButton) findViewById(R.id
+        final FloatingActionButton fabAddProfile = (FloatingActionButton) findViewById(R.id
                 .fabAddProfile);
         fabAddProfile.setImageResource(R.drawable.ic_add_white_18dp);
         fabAddProfile.setOnClickListener(new View.OnClickListener() {
@@ -55,22 +95,14 @@ public class ProfileCardsActivity extends AppCompatActivity {
                 createAddNewProfileDialog();
             }
         });
-        // Code to Add an item with default animation
-        //((MyRecyclerViewAdapter) mAdapter).addItem(obj, index);
 
-        // Code to remove an item with default animation
-        //((MyRecyclerViewAdapter) mAdapter).deleteItem(index);
-
-        ((ProfileCardsAdapter) mAdapter).setOnItemClickListener(new ProfileCardsAdapter
-                .MyClickListener() {
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener(){
             @Override
-            public void onItemClick(int position, View v) {
-                Intent appsActivity = new Intent(ProfileCardsActivity.this, AppsListActivity.class);
-                startActivity(appsActivity);
-            }
-
-            @Override
-            public void onItemLongClickListener(int position, View v) {
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy){
+                if (dy > 0)
+                    fabAddProfile.hide();
+                else if (dy < 0)
+                    fabAddProfile.show();
             }
         });
     }
@@ -102,9 +134,12 @@ public class ProfileCardsActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int id) {
                         String newProfile = input.getText().toString();
-                        if (newProfile.length() > 0) {
-                            ((ProfileCardsAdapter) mAdapter).addItem(new ProfileModel(newProfile,
-                                    true, false), mAdapter.getItemCount());
+                        if (!TextUtils.isEmpty(newProfile)) {
+                            ProfileModel model = new ProfileModel(newProfile, true, false);
+                            ((ProfileCardsAdapter) mAdapter).addItem(model, mAdapter.getItemCount
+                                    ());
+                            KemitorDataResolver resolver = new KemitorDataResolver(mContext);
+                            resolver.insertProfileModel(model);
                         }
                     }
                 })
@@ -118,11 +153,11 @@ public class ProfileCardsActivity extends AppCompatActivity {
 
     private ArrayList<ProfileModel> getDataSet() {
         ArrayList results = new ArrayList<>();
-//        for (int index = 0; index < 20; index++) {
-//            ProfileModel obj = new ProfileModel("Some Profile " + index,
-//                    "Default settings", true);
-//            results.add(index, obj);
-//        }
+        for (int index = 0; index < 20; index++) {
+            ProfileModel obj = new ProfileModel("Some Profile " + index,
+                    true, true);
+            results.add(index, obj);
+        }
         return results;
     }
 }

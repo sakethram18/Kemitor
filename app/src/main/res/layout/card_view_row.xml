@@ -42,15 +42,27 @@
                     android:textColor="@color/primary_text"
                     android:textStyle="bold"/>
 
-                <TextView
-                    android:id="@+id/settingsType"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/app_name"
-                    android:textSize="14sp"
-                    android:textColor="@color/secondary_text"
-                    android:layout_marginTop="12dp"/>
+                    android:orientation="horizontal"
+                    android:layout_marginTop="12dp">
+                    <CheckBox
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/checkboxIsProfileLevelSettings"
+                        android:layout_gravity="center_vertical"/>
+                    <TextView
+                        android:id="@+id/settingsType"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/app_name"
+                        android:textSize="14sp"
+                        android:textColor="@color/secondary_text"
+                        android:layout_marginStart="12dp"
+                        android:layout_gravity="center_vertical"/>
                 </LinearLayout>
+            </LinearLayout>
         <Switch
             android:id="@+id/switchIsProfileSelected"
             android:layout_width="0dp"
@@ -75,7 +87,7 @@
             android:id="@+id/block_level_label"
             android:layout_toEndOf="@id/block_label"
             android:layout_below="@id/aboveLayout"
-            android:text="@string/block_strictness"
+            android:text="@string/strictness_level_1"
             android:textSize="14sp"
             android:textColor="@color/secondary_text"
             android:layout_marginTop="12dp"/>
@@ -85,7 +97,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/block_level_description"
             android:layout_below="@id/block_label"
-            android:text="@string/block_strictness"
+            android:text="@string/strictness_level_description_1"
             android:textSize="14sp"
             android:textColor="@color/secondary_text"
             android:layout_marginTop="12dp"/>
