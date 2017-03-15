@@ -11,7 +11,7 @@ import android.widget.TextView;
 
 import com.example.karums1.kemitor.KemitorApplication;
 import com.example.karums1.kemitor.R;
-import com.example.karums1.kemitor.data_access.ProfileCardModel;
+import com.example.karums1.kemitor.data_access.ProfileModel;
 
 import java.util.ArrayList;
 
@@ -22,14 +22,14 @@ import java.util.ArrayList;
 public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapter.DataObjectHolder> {
 
     private static String LOG_TAG = "ProfileCardsAdapter";
-    private ArrayList<ProfileCardModel> mDataset;
+    private ArrayList<ProfileModel> mDataset;
     private static MyClickListener myClickListener;
 
     public void setOnItemClickListener(MyClickListener myClickListener) {
         this.myClickListener = myClickListener;
     }
 
-    public ProfileCardsAdapter(ArrayList<ProfileCardModel> myDataset) {
+    public ProfileCardsAdapter(ArrayList<ProfileModel> myDataset) {
         mDataset = myDataset;
     }
 
@@ -104,12 +104,13 @@ public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapte
     @Override
     public void onBindViewHolder(final DataObjectHolder holder, int position) {
         holder.mProfileName.setText(mDataset.get(position).getProfileName());
-        holder.mSettingsType.setText(mDataset.get(position).getSettingsType());
-        holder.mIsProfileSelected.setChecked(mDataset.get(position).isProfileSelected());
+        holder.mSettingsType.setText(mDataset.get(position).isProfileLevelSetting() ?
+                "true":"false");
+        holder.mIsProfileSelected.setChecked(mDataset.get(position).isEnabled());
         holder.mSeekbar.setProgress(0);
     }
 
-    public void addItem(ProfileCardModel dataObj, int index) {
+    public void addItem(ProfileModel dataObj, int index) {
         mDataset.add(index, dataObj);
         notifyItemInserted(index);
     }

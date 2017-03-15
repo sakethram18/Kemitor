@@ -9,16 +9,13 @@ import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
-import com.example.karums1.kemitor.KemitorApplication;
 import com.example.karums1.kemitor.R;
-import com.example.karums1.kemitor.data_access.ProfileCardModel;
+import com.example.karums1.kemitor.data_access.ProfileModel;
 import com.example.karums1.kemitor.presentation.widgets.ProfileCardsAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -106,8 +103,8 @@ public class ProfileCardsActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         String newProfile = input.getText().toString();
                         if (newProfile.length() > 0) {
-                            ((ProfileCardsAdapter) mAdapter).addItem(new ProfileCardModel(newProfile,
-                                    "Default settings", false), mAdapter.getItemCount());
+                            ((ProfileCardsAdapter) mAdapter).addItem(new ProfileModel(newProfile,
+                                    true, false), mAdapter.getItemCount());
                         }
                     }
                 })
@@ -119,10 +116,10 @@ public class ProfileCardsActivity extends AppCompatActivity {
         builder.create().show();
     }
 
-    private ArrayList<ProfileCardModel> getDataSet() {
+    private ArrayList<ProfileModel> getDataSet() {
         ArrayList results = new ArrayList<>();
 //        for (int index = 0; index < 20; index++) {
-//            ProfileCardModel obj = new ProfileCardModel("Some Profile " + index,
+//            ProfileModel obj = new ProfileModel("Some Profile " + index,
 //                    "Default settings", true);
 //            results.add(index, obj);
 //        }

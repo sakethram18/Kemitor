@@ -14,11 +14,17 @@ public class ProfileModel {
 
     public ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
             isProfileLevelSetting, BlockLevel profileBlockLevel) {
-        this.mUniqueId = uniqueId;
-        this.mProfileName = profileName;
-        this.mIsEnabled = isEnabled;
-        this.mIsProfileLevelSetting = isProfileLevelSetting;
-        this.mProfileBlockLevel = profileBlockLevel;
+        mUniqueId = uniqueId;
+        mProfileName = profileName;
+        mIsEnabled = isEnabled;
+        mIsProfileLevelSetting = isProfileLevelSetting;
+        mProfileBlockLevel = profileBlockLevel;
+    }
+
+    public ProfileModel(String profileName, boolean isProfileLevelSetting, boolean isEnabled) {
+        mProfileName = profileName;
+        mIsProfileLevelSetting = isProfileLevelSetting;
+        mIsEnabled = isEnabled;
     }
 
     public String getProfileName() {
