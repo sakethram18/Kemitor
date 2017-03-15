@@ -44,7 +44,35 @@ public class KemitorDataResolver {
                     .TABLE_PACKAGES);
             Uri resultUri = mContext.getContentResolver().insert(uri, values);
             if (resultUri != null) {
-                Log.d(TAG, "Insertion successful");
+                Log.d(TAG, "App model insertion successful");
+                model.setUniqueId(uniqueId.toString());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Method to insert Profile Model in the database
+     *
+     * @param model
+     * @return
+     */
+    public boolean insertProfileModel(ProfileModel model) {
+        if (model != null) {
+            Log.d(TAG, "Inserting profile model...");
+            ContentValues values = new ContentValues();
+            UUID uniqueId = UUID.randomUUID();
+            values.put(ContractConstants.PROFILES_COLUMN_ID, uniqueId.toString());
+            values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
+            values.put(ContractConstants.PROFILES_COLUMN_IS_ENABLED, model.isEnabled() ? 1:0);
+            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model.isProfileLevelSetting());
+            values.put(ContractConstants.PROFILES_COLUMN_BLOCK_LEVEL, model.getProfileBlockLevel().getLevel());
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
+                    .TABLE_PROFILES);
+            Uri resultUri = mContext.getContentResolver().insert(uri, values);
+            if (resultUri != null) {
+                Log.d(TAG, "Profile model insertion successful");
                 model.setUniqueId(uniqueId.toString());
                 return true;
             }
@@ -99,7 +127,35 @@ public class KemitorDataResolver {
                     .TABLE_PACKAGES);
             int rowsUpdated = mContext.getContentResolver().update(uri, values, selection, args);
             if (rowsUpdated > 0) {
-                Log.d(TAG, "Updation successful");
+                Log.d(TAG, "App model updation successful");
+                return rowsUpdated;
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Method to update Profile Model in the database
+     *
+     * @param model
+     * @return
+     */
+    public int updateProfileModel(ProfileModel model) {
+        if (model != null) {
+            ContentValues values = new ContentValues();
+            values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
+            values.put(ContractConstants.PROFILES_COLUMN_IS_ENABLED, model.isEnabled() ? 1:0);
+            values.put(ContractConstants.PROFILES_COLUMN_IS_PROFILE_LEVEL_SETTING, model.isProfileLevelSetting());
+            values.put(ContractConstants.PROFILES_COLUMN_BLOCK_LEVEL, model.getProfileBlockLevel().getLevel());
+
+            String selection = ContractConstants.PROFILES_COLUMN_ID + "=?";
+            String[] args = new String[1];
+            args[0] = model.getUniqueId();
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
+                    .TABLE_PROFILES);
+            int rowsUpdated = mContext.getContentResolver().update(uri, values, selection, args);
+            if (rowsUpdated > 0) {
+                Log.d(TAG, "Profile model updation successful");
                 return rowsUpdated;
             }
         }
@@ -121,6 +177,23 @@ public class KemitorDataResolver {
         }
         return 0;
     }
+
+    /**
+     * Method to delete profile model from the database
+     * @param model
+     * @return
+     */
+    public int deleteProfileModel(ProfileModel model) {
+        if (model != null) {
+            if (model.getUniqueId().length() != 0) {
+                Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                        ContractConstants.TABLE_PROFILES + "/" + model.getUniqueId());
+                return mContext.getContentResolver().delete(uri, null, null);
+            }
+        }
+        return 0;
+    }
+
 
     /**
      * Method to delete app model from the database
@@ -160,5 +233,36 @@ public class KemitorDataResolver {
             cursor.close();
         }
         return packages;
+    }
+
+    public Map<ProfileModel, Boolean> getAllProfileModel() {
+        Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                ContractConstants.TABLE_PROFILES);
+        Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
+                .PROFILES_ALL_COLUMNS, null, null, ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
+        return cursorToProfileModel(cursor);
+    }
+
+    private Map<ProfileModel, Boolean> cursorToProfileModel(Cursor cursor) {
+        Map<ProfileModel, Boolean> profiles = new HashMap<>();
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                int index = 0;
+                String uniqueId = cursor.getString(index++);
+                String profileName = cursor.getString(index++);
+                int isEnabled = cursor.getInt(index);
+                int isProfileLevelSetting = cursor.getInt(index++);
+                int profileBlockLevel = cursor.getInt(index);
+
+                ProfileModel model = new ProfileModel(uniqueId, profileName, isEnabled == 1,
+                        isProfileLevelSetting == 1, BlockLevel.getBlockLevelFromValue
+                        (profileBlockLevel));
+                profiles.put(model, model.isEnabled());
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return profiles;
     }
 }

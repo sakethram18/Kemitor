@@ -10,7 +10,16 @@ public class ProfileModel {
     private String mProfileName = "";
     private boolean mIsEnabled;
     private boolean mIsProfileLevelSetting;
-    private BlockLevel profileBlockLevel = BlockLevel.DefaultNotSet;
+    private BlockLevel mProfileBlockLevel = BlockLevel.DefaultNotSet;
+
+    public ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
+            isProfileLevelSetting, BlockLevel profileBlockLevel) {
+        this.mUniqueId = uniqueId;
+        this.mProfileName = profileName;
+        this.mIsEnabled = isEnabled;
+        this.mIsProfileLevelSetting = isProfileLevelSetting;
+        this.mProfileBlockLevel = profileBlockLevel;
+    }
 
     public String getProfileName() {
         return mProfileName;
@@ -40,16 +49,16 @@ public class ProfileModel {
         return mIsProfileLevelSetting;
     }
 
-    public void setmIsProfileLevelSetting(boolean mIsProfileLevelSetting) {
+    public void setIsProfileLevelSetting(boolean mIsProfileLevelSetting) {
         this.mIsProfileLevelSetting = mIsProfileLevelSetting;
     }
 
     public BlockLevel getProfileBlockLevel() {
-        return profileBlockLevel;
+        return mProfileBlockLevel;
     }
 
     public void setProfileBlockLevel(BlockLevel profileBlockLevel) {
-        this.profileBlockLevel = profileBlockLevel;
+        this.mProfileBlockLevel = profileBlockLevel;
     }
 
 }
