@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:330566725133:android:0a632b32c7e43023",
         "android_client_info": {
-          "package_name": "com.example.karums1.kemitor"
+          "package_name": "com.apps.karums.kemitor"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "330566725133-10ti64e2ut883pf7n57sstpe3rlmndh4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.karums1.kemitor",
+            "package_name": "com.apps.karums.kemitor",
             "certificate_hash": "8012733588c8e96410c00ef8860e94f62cb604f4"
           }
         },
