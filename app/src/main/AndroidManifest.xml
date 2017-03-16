@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="com.example.karums1.kemitor">
+          package="com.apps.karums.kemitor">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission
@@ -11,14 +11,14 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
 
     <application
-        android:name=".KemitorApplication"
+        android:name="com.apps.karums.kemitor.KemitorApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".KemitorAccessibilityService"
+            android:name="com.apps.karums.kemitor.KemitorAccessibilityService"
             android:enabled="true"
             android:exported="false"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -28,7 +28,7 @@
         </service>
 
         <activity
-            android:name=".presentation.activities.MainActivity"
+            android:name="com.apps.karums.kemitor.presentation.activities.MainActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -37,15 +37,15 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".presentation.activities.AppsListActivity">
+        <activity android:name="com.apps.karums.kemitor.presentation.activities.AppsListActivity">
         </activity>
 
         <provider
-            android:name=".data_access.KemitorDataProvider"
-            android:authorities="com.example.karums1.kemitordataprovider">
+            android:name="com.apps.karums.kemitor.data_access.KemitorDataProvider"
+            android:authorities="com.apps.karums.kemitordataprovider">
         </provider>
 
-        <activity android:name=".presentation.activities.ProfileCardsActivity">
+        <activity android:name="com.apps.karums.kemitor.presentation.activities.ProfileCardsActivity">
         </activity>
     </application>
 
