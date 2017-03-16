@@ -141,7 +141,7 @@ public class Utils {
         for (ResolveInfo resolveInfo : lst) {
             String packageName = resolveInfo.activityInfo.packageName;
             String appName = (String) resolveInfo.activityInfo.loadLabel(pm);
-            Drawable icon = resolveInfo.activityInfo.loadLogo(pm);
+            Drawable icon = resolveInfo.loadIcon(pm);
             AppModel app = new AppModel(packageName, appName, icon, true);
             launcherApps.add(app);
             Log.d("Test", "New Launcher Found: " + resolveInfo.activityInfo.packageName);
@@ -161,26 +161,28 @@ public class Utils {
     }
 
     public static ArrayList<AppModel> getInstalledApps(Context context) {
-        List<PackageInfo> myApps = context.getPackageManager().getInstalledPackages(0);
+        PackageManager pm = KemitorApplication.getAppContext().getPackageManager();
+        Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
+        List<ResolveInfo> pkgAppsList = pm.queryIntentActivities( mainIntent, 0);
         ArrayList<AppModel> listOfApps = new ArrayList<>();
-        for (int i = 0; i < myApps.size(); i++) {
-            PackageInfo p = myApps.get(i);
-            String packageName = p.packageName;
-            String appName = p.applicationInfo.loadLabel(context.getPackageManager())
-                    .toString();
-            Drawable icon = p.applicationInfo.loadIcon(context.getPackageManager());
+        for (int i = 0; i < pkgAppsList.size(); i++) {
+            ResolveInfo r = pkgAppsList.get(i);
+            String packageName = r.activityInfo.packageName;
+            String appName = (String) r.activityInfo.loadLabel(pm);
+            Drawable icon = r.loadIcon(pm);
             AppModel model = new AppModel(packageName, appName, icon);
             // TODO: Add system apps with a warning to the user
 //            if ((p.applicationInfo.flags & (p.applicationInfo.FLAG_SYSTEM | p.applicationInfo
 //                    .FLAG_UPDATED_SYSTEM_APP)) == 0) {
-                listOfApps.add(model);
+            listOfApps.add(model);
 //            }
         }
         Log.d(TAG, "Loading list of installed apps");
         Collections.sort(listOfApps, new Comparator<AppModel>() {
             @Override
             public int compare(AppModel lhs, AppModel rhs) {
-                return lhs.getAppName().compareTo(rhs.getAppName());
+                return lhs.getAppName().toUpperCase().compareTo(rhs.getAppName().toUpperCase());
             }
         });
         return updateStatusInstalledApps(context, listOfApps);
