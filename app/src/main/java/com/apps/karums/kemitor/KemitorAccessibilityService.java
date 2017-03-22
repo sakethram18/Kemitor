@@ -6,11 +6,13 @@ import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 import com.apps.karums.kemitor.data_access.DataModel;
 import com.apps.karums.kemitor.presentation.widgets.KemitorOverlayAlert;
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +25,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     Map<String, Integer> mNotificationIdMap = new HashMap<>();
     AtomicInteger mNotificationId = new AtomicInteger();
-
+    private static final String TAG = "KemitorAccessibilityService";
     KemitorOverlayAlert mOverlayAlert = null;
     boolean mIsLauncherApp = true;
     boolean mIsUserChosenEnter = false;
@@ -34,34 +36,46 @@ public class KemitorAccessibilityService extends AccessibilityService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Accessibility service starting", Toast.LENGTH_SHORT).show();
+        FirebaseCrash.logcat(Log.VERBOSE, TAG, "onStartCommand - Accessibility service starting");
         mOverlayAlert = KemitorOverlayAlert.getOverlayAlert(this);
         setServiceConfiguration(intent);
-        // If we get killed, after returning from here, restart
-        return START_STICKY;
+        // If we get killed, after returning from here, restart and redeliver the intent
+        return START_REDELIVER_INTENT;
     }
 
     private void setServiceConfiguration(Intent intent) {
         //TODO: Optimize AccessibilityServiceInfo object creation
-        boolean isEnabled = intent.getBooleanExtra(KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, false);
-        if (!isEnabled) {
-            this.setServiceInfo(new AccessibilityServiceInfo());
-        } else {
-            ArrayList<String> selectedAppsStr = intent.getStringArrayListExtra(AppConstants
-                    .LIST_OF_SELECTED_APPS);
-            AccessibilityServiceInfo info = new AccessibilityServiceInfo();
+        if (intent != null) {
+            FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Intent not null");
+            boolean isEnabled = intent.getBooleanExtra(KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, false);
+            if (!isEnabled) {
+                FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
+                        "service with empty configuration");
+                this.setServiceInfo(new AccessibilityServiceInfo());
+            } else {
+                ArrayList<String> selectedAppsStr = intent.getStringArrayListExtra(AppConstants
+                        .LIST_OF_SELECTED_APPS);
+                FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
+                        "service with configuration: " + selectedAppsStr.toString());
+                AccessibilityServiceInfo info = new AccessibilityServiceInfo();
 //            info.eventTypes = AccessibilityEvent.TYPE_WINDOWS_CHANGED |
 //                    AccessibilityEvent.TYPE_VIEW_FOCUSED |
 //                    AccessibilityEvent.TYPE_VIEW_CLICKED |
 //                    AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
 
-            //TODO: The service should also listen to any new launcher apps being installed
-            // while it is running in the background
-            info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
-            info.packageNames = (selectedAppsStr.toArray(new String[0]));
-            info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-            info.notificationTimeout = 100;
-            this.setServiceInfo(info);
+                //TODO: The service should also listen to any new launcher apps being installed
+                // while it is running in the background
+                info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+                info.packageNames = (selectedAppsStr.toArray(new String[0]));
+                info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
+                info.notificationTimeout = 100;
+                this.setServiceInfo(info);
+            }
+        } else {
+            FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
+                    "service with null intent");
         }
+        FirebaseCrash.report(new Throwable("Testing KemitorAccessibilityService"));
     }
 
     @Override
@@ -70,8 +84,9 @@ public class KemitorAccessibilityService extends AccessibilityService {
         String description = event.toString();
         buildNotif(packageName, description);
 //        showOverlayDialog(packageName);
-        DataModel model = DataModel.getInstance();
-        if (model.getIsLauncherApp(packageName)) {
+        DataModel dataModel = DataModel.getInstance();
+        FirebaseCrash.logcat(Log.VERBOSE, TAG, "onAccessibilityEvent - Event received for: " + packageName);
+        if (dataModel.getIsLauncherApp(packageName)) {
             mIsLauncherApp = true;
             mIsUserChosenEnter = false;
         } else {

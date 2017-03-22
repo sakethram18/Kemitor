@@ -1,17 +1,20 @@
 package com.apps.karums.kemitor.presentation.widgets;
 
 import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.Space;
 import android.widget.Switch;
 import android.widget.TextView;
 
 import com.apps.karums.kemitor.R;
-import com.apps.karums.kemitor.data_access.AppModel;
+import com.apps.karums.kemitor.data_access.IAppModel;
 
 import java.util.ArrayList;
 
@@ -19,11 +22,11 @@ import java.util.ArrayList;
  * Created by karums on 12/26/2016.
  */
 
-public class AppsArrayAdapter extends ArrayAdapter<AppModel> {
+public class AppsArrayAdapter extends ArrayAdapter<IAppModel> {
 
-    private ArrayList<AppModel> objects;
+    private ArrayList<IAppModel> objects;
 
-    public AppsArrayAdapter(Context context, ArrayList<AppModel> objects) {
+    public AppsArrayAdapter(Context context, ArrayList<IAppModel> objects) {
         super(context, 0, objects);
         this.objects = objects;
     }
@@ -38,7 +41,7 @@ public class AppsArrayAdapter extends ArrayAdapter<AppModel> {
                     R.layout.apps_list, parent, false);
         }
 
-        final AppModel model = getItem(position);
+        final IAppModel model = getItem(position);
 
         ImageView appIcon = (ImageView) listItemView.findViewById(R.id.appIcon);
         appIcon.setImageDrawable(model.getAppIcon());
@@ -58,32 +61,19 @@ public class AppsArrayAdapter extends ArrayAdapter<AppModel> {
             }
         });
 
-//        switchIsSelected.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (switchIsSelected.isChecked()) {
-//                    model.setSelected(true);
-//                } else {
-//                    model.setSelected(false);
-//                }
-//            }
-//        });
 
-//        switchIsSelected.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                if (switchIsSelected.isChecked()) {
-//                    model.setSelected(true);
-//                } else {
-//                    model.setSelected(false);
-//                }
-//                return false;
-//            }
-//        });
+//        if (model.getIsLauncherApp()) {
+////            AbsListView.LayoutParams param = (AbsListView.LayoutParams)listItemView.getLayoutParams();
+////            listItemView.setVisibility(View.GONE);
+////            param.width = 0;
+////            param.height = 0;
+////            listItemView.setLayoutParams(param);
+//            listItemView = new Space(getContext());
+//        }
         return listItemView;
     }
 
-    public ArrayList<AppModel> getItems() {
+    public ArrayList<IAppModel> getItems() {
         return objects;
     }
 

@@ -9,7 +9,7 @@ import android.graphics.drawable.Drawable;
 /**
  * Describes a single application entity
  */
-public class AppModel {
+public class AppModel implements IAppModel {
 
     private String mUniqueId = "";
     private String mPackageName = "";
@@ -105,4 +105,8 @@ public class AppModel {
         return result;
     }
 
+    @Override
+    public boolean getIsLauncherApp() {
+        return false;
+    }
 }

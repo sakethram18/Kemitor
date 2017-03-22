@@ -16,11 +16,14 @@ public class ContractConstants {
     public static final String PACKAGES_COLUMN_IS_ENABLED = "package_is_enabled";
     public static final String PACKAGES_COLUMN_PROFILE_IDS = "package_profile_ids";
     public static final String PACKAGES_COLUMN_BLOCK_LEVEL = "packages_block_level";
+    public static final String PACKAGES_COLUMN_IS_LAUNCHER = "packages_is_launcher";
     public static final String[] PACKAGES_ALL_COLUMNS = {PACKAGES_COLUMN_ID, PACKAGES_COLUMN_PACKAGE_NAME,
-            PACKAGES_COLUMN_IS_ENABLED, PACKAGES_COLUMN_PROFILE_IDS, PACKAGES_COLUMN_BLOCK_LEVEL};
+            PACKAGES_COLUMN_IS_ENABLED, PACKAGES_COLUMN_PROFILE_IDS, PACKAGES_COLUMN_BLOCK_LEVEL,
+            PACKAGES_COLUMN_IS_LAUNCHER};
     public static final String DEFAULT_PACKAGES_SORT_ORDER = PACKAGES_COLUMN_ID + COMMA_SPACE +
             PACKAGES_COLUMN_PACKAGE_NAME + COMMA_SPACE + PACKAGES_COLUMN_IS_ENABLED + COMMA_SPACE
-            + PACKAGES_COLUMN_BLOCK_LEVEL + COMMA_SPACE + PACKAGES_COLUMN_PROFILE_IDS;
+            + PACKAGES_COLUMN_BLOCK_LEVEL + COMMA_SPACE + PACKAGES_COLUMN_IS_LAUNCHER +
+            COMMA_SPACE + PACKAGES_COLUMN_PROFILE_IDS;
 
     // Profile table constants
     public static final String TABLE_PROFILES = "profiles";

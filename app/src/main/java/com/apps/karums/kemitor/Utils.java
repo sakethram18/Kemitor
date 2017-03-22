@@ -17,8 +17,10 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.apps.karums.kemitor.data_access.AppModel;
+import com.apps.karums.kemitor.data_access.IAppModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 import com.apps.karums.kemitor.data_access.ProfileModel;
+import com.apps.karums.kemitor.data_access.LauncherAppModel;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -131,24 +133,24 @@ public class Utils {
         return false;
     }
 
-    public static ArrayList<AppModel> getLauncherApps() {
+    public static ArrayList<IAppModel> getLauncherApps() {
         PackageManager pm = KemitorApplication.getAppContext().getPackageManager();
         Intent i = new Intent(Intent.ACTION_MAIN);
+        // Get all home launcher applications
         i.addCategory(Intent.CATEGORY_HOME);
         List<ResolveInfo> lst = pm.queryIntentActivities(i, 0);
-        ArrayList<AppModel> launcherApps = new ArrayList<>();
+        ArrayList<IAppModel> launcherApps = new ArrayList<>();
         for (ResolveInfo resolveInfo : lst) {
             String packageName = resolveInfo.activityInfo.packageName;
             String appName = (String) resolveInfo.activityInfo.loadLabel(pm);
             Drawable icon = resolveInfo.loadIcon(pm);
-            AppModel app = new AppModel(packageName, appName, icon, true);
+            IAppModel app = new LauncherAppModel(packageName, appName, icon);
             launcherApps.add(app);
-            Log.d("Test", "New Launcher Found: " + resolveInfo.activityInfo.packageName);
         }
         // Also add System UI if it doesn't exist.
         String sUI = "com.android.systemui";
         try {
-            AppModel systemUI = new AppModel(sUI, "System UI", pm.getApplicationIcon(sUI), true);
+            IAppModel systemUI = new LauncherAppModel(sUI, "System UI", pm.getApplicationIcon(sUI));
             if (!launcherApps.contains(systemUI)) {
                 launcherApps.add(systemUI);
             }
@@ -159,28 +161,43 @@ public class Utils {
         return launcherApps;
     }
 
-    public static ArrayList<AppModel> getInstalledApps(Context context) {
+    public static ArrayList<IAppModel> getInstalledApps(Context context) {
+        ArrayList<IAppModel> listOfApps = getLauncherApps();
+
         PackageManager pm = KemitorApplication.getAppContext().getPackageManager();
         Intent mainIntent = new Intent(Intent.ACTION_MAIN, null);
+        // Get all launchable and usable applications
         mainIntent.addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> pkgAppsList = pm.queryIntentActivities( mainIntent, 0);
-        ArrayList<AppModel> listOfApps = new ArrayList<>();
+
         for (int i = 0; i < pkgAppsList.size(); i++) {
             ResolveInfo r = pkgAppsList.get(i);
             String packageName = r.activityInfo.packageName;
             String appName = (String) r.activityInfo.loadLabel(pm);
             Drawable icon = r.loadIcon(pm);
-            AppModel model = new AppModel(packageName, appName, icon);
+            IAppModel model = new AppModel(packageName, appName, icon);
             // TODO: Add system apps with a warning to the user
 //            if ((p.applicationInfo.flags & (p.applicationInfo.FLAG_SYSTEM | p.applicationInfo
 //                    .FLAG_UPDATED_SYSTEM_APP)) == 0) {
-            listOfApps.add(model);
+            // This is because a home launcher application can also be a launchable application
+            if (!listOfApps.contains(model)) {
+                listOfApps.add(model);
+            }
 //            }
         }
+//        List<PackageInfo> myApps = context.getPackageManager().getInstalledPackages(0);
+//        for (int i = 0; i < myApps.size(); i++) {
+//            PackageInfo p = myApps.get(i);
+//            String packageName = p.packageName;
+//            String appName = p.applicationInfo.loadLabel(context.getPackageManager()).toString();
+//            Drawable icon = p.applicationInfo.loadIcon(context.getPackageManager());
+//            IAppModel model = new AppModel(packageName, appName, icon);
+//            listOfApps.add(model);
+//        }
         Log.d(TAG, "Loading list of installed apps");
-        Collections.sort(listOfApps, new Comparator<AppModel>() {
+        Collections.sort(listOfApps, new Comparator<IAppModel>() {
             @Override
-            public int compare(AppModel lhs, AppModel rhs) {
+            public int compare(IAppModel lhs, IAppModel rhs) {
                 return lhs.getAppName().toUpperCase().compareTo(rhs.getAppName().toUpperCase());
             }
         });
@@ -188,13 +205,13 @@ public class Utils {
     }
 
 
-    private static ArrayList<AppModel> updateStatusInstalledApps(Context context,
-                                                                 ArrayList<AppModel>
+    private static ArrayList<IAppModel> updateStatusInstalledApps(Context context,
+                                                                 ArrayList<IAppModel>
             listOfApps) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
-        Map<AppModel, Boolean> dbAllApps = resolver.getAllAppModels();
+        Map<IAppModel, Boolean> dbAllApps = resolver.getAllAppModels();
 
-        for (AppModel model: listOfApps) {
+        for (IAppModel model: listOfApps) {
             if (dbAllApps.containsKey(model)) {
                 model.setSelected(dbAllApps.get(model));
             }

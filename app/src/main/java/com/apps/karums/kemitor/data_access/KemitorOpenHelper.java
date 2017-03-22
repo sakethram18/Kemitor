@@ -24,7 +24,8 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
             ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME + " TEXT NOT NULL, " +
             ContractConstants.PACKAGES_COLUMN_IS_ENABLED + " INTEGER, " +
             ContractConstants.PACKAGES_COLUMN_PROFILE_IDS + " TEXT, " +
-            ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL + " INTEGER);";
+            ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL + " INTEGER, " +
+            ContractConstants.PACKAGES_COLUMN_IS_LAUNCHER + " INTEGER);";
 
     private static final String CREATE_PROFILES_TABLE = "CREATE TABLE " + TABLE_PROFILES + " (" +
             ContractConstants.PROFILES_COLUMN_ID + " TEXT NOT NULL PRIMARY KEY, " +

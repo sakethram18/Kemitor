@@ -16,7 +16,7 @@ import com.apps.karums.kemitor.presentation.widgets.AppsArrayAdapter;
 import com.apps.karums.kemitor.KemitorAccessibilityService;
 import com.apps.karums.kemitor.R;
 import com.apps.karums.kemitor.Utils;
-import com.apps.karums.kemitor.data_access.AppModel;
+import com.apps.karums.kemitor.data_access.IAppModel;
 import com.apps.karums.kemitor.data_access.DataModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 
@@ -28,7 +28,7 @@ public class AppsListActivity extends AppCompatActivity {
     //TODO: Save previously saved apps and display the status while loading the list
     ProgressBar mProgressBar;
     Context mContext;
-    ArrayList<AppModel> installedApps;
+    ArrayList<IAppModel> installedApps;
     AppsArrayAdapter listArrayAdapter;
 
     @Override
@@ -45,8 +45,8 @@ public class AppsListActivity extends AppCompatActivity {
             public void run() {
                 installedApps = Utils.getInstalledApps(mContext);
                 final ListView appsListView = (ListView) findViewById(R.id.appsList);
-                listArrayAdapter = new AppsArrayAdapter(mContext, installedApps);
-
+                listArrayAdapter = new AppsArrayAdapter(mContext, getFilteredApps(installedApps,
+                        false));
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -96,16 +96,18 @@ public class AppsListActivity extends AppCompatActivity {
             @Override
             public void run() {
                 KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
-                //Clear cache and database before updating it with the latest apps list
-                DataModel.getInstance().clearAppsList();
                 dataResolver.deleteAllAppModels();
-                //Update cache after updating the database
                 dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
-                DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
+                dataResolver.bulkInsertAppModels(getFilteredApps(installedApps, true));
             }
         }).start();
-        ArrayList<AppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());
-        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
+        //Update the data model cache
+        DataModel.getInstance().clearAppsList();
+        DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
+        DataModel.getInstance().updateAppsList(getFilteredApps(installedApps, true));
+
+        ArrayList<IAppModel> selectedApps = DataModel.getInstance().getSelectedApps();
+//        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
         Intent serviceIntent = new Intent(this, KemitorAccessibilityService.class);
         serviceIntent.putExtra(AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
         serviceIntent.putStringArrayListExtra(AppConstants.LIST_OF_SELECTED_APPS,
@@ -114,21 +116,31 @@ public class AppsListActivity extends AppCompatActivity {
         finish();
     }
 
-    private ArrayList<AppModel> getSelectedApps(ArrayList<AppModel> list) {
-        ArrayList<AppModel> resultList = new ArrayList<>();
-        for(AppModel model: list) {
-            if (model.isSelected()) {
+
+
+    private ArrayList<String> getPackageNameList(ArrayList<IAppModel> selectedApps) {
+        ArrayList<String> packageNamesList = new ArrayList<>();
+        for(IAppModel model: selectedApps) {
+            packageNamesList.add(model.getPackageName());
+        }
+        return packageNamesList;
+    }
+
+    /**
+     * Returns launcher apps or the other apps based on the boolean flag parameter
+     * @param listOfApps
+     * @param isLauncherApps
+     * @return
+     */
+    private ArrayList<IAppModel> getFilteredApps(ArrayList<IAppModel> listOfApps, boolean
+            isLauncherApps) {
+        ArrayList<IAppModel> resultList = new ArrayList<>();
+        for (IAppModel model: listOfApps) {
+            if ((isLauncherApps && model.getIsLauncherApp()) || (!isLauncherApps && !model
+                    .getIsLauncherApp())) {
                 resultList.add(model);
             }
         }
         return resultList;
-    }
-
-    private ArrayList<String> getPackageNameList(ArrayList<AppModel> selectedApps) {
-        ArrayList<String> packageNamesList = new ArrayList<>();
-        for(AppModel model: selectedApps) {
-            packageNamesList.add(model.getPackageName());
-        }
-        return packageNamesList;
     }
 }

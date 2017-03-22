@@ -31,7 +31,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public boolean insertAppModel(AppModel model) {
+    public boolean insertAppModel(IAppModel model) {
         if (model != null) {
             Log.d(TAG, "Inserting app model...");
             ContentValues values = new ContentValues();
@@ -41,6 +41,7 @@ public class KemitorDataResolver {
             values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
             values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
             values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
+            values.put(ContractConstants.PACKAGES_COLUMN_IS_LAUNCHER, model.getIsLauncherApp());
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
                     .TABLE_PACKAGES);
             Uri resultUri = mContext.getContentResolver().insert(uri, values);
@@ -82,11 +83,11 @@ public class KemitorDataResolver {
         return false;
     }
 
-    public int bulkInsertAppModels(List<AppModel> appModels) {
+    public int bulkInsertAppModels(List<IAppModel> appModels) {
         if (appModels != null && !appModels.isEmpty()) {
             ContentValues[] listValues = new ContentValues[appModels.size()];
             for (int i = 0; i < appModels.size(); i++) {
-                AppModel model = appModels.get(i);
+                IAppModel model = appModels.get(i);
                 ContentValues values = new ContentValues();
                 UUID uniqueId = UUID.randomUUID();
                 values.put(ContractConstants.PACKAGES_COLUMN_ID, uniqueId.toString());
@@ -94,6 +95,7 @@ public class KemitorDataResolver {
                 values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
                 values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
                 values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
+                values.put(ContractConstants.PACKAGES_COLUMN_IS_LAUNCHER, model.getIsLauncherApp());
                 model.setUniqueId(uniqueId.toString());
                 listValues[i] = values;
             }
@@ -114,13 +116,14 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public int updateAppModel(AppModel model) {
+    public int updateAppModel(IAppModel model) {
         if (model != null) {
             ContentValues values = new ContentValues();
             values.put(ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME, model.getPackageName());
             values.put(ContractConstants.PACKAGES_COLUMN_IS_ENABLED, model.isSelected() ? 1:0);
             values.put(ContractConstants.PACKAGES_COLUMN_PROFILE_IDS, model.getProfileId());
             values.put(ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL, model.getBlockLevel().getLevel());
+            values.put(ContractConstants.PACKAGES_COLUMN_IS_LAUNCHER, model.getIsLauncherApp());
 
             String selection = ContractConstants.PACKAGES_COLUMN_ID + "=?";
             String[] args = new String[1];
@@ -170,7 +173,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public int deleteAppModel(AppModel model) {
+    public int deleteAppModel(IAppModel model) {
         if (model != null) {
             if (model.getUniqueId().length() != 0) {
                 Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
@@ -208,7 +211,7 @@ public class KemitorDataResolver {
         return mContext.getContentResolver().delete(uri, null, null);
     }
 
-    public Map<AppModel, Boolean> getAllAppModels() {
+    public Map<IAppModel, Boolean> getAllAppModels() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PACKAGES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
@@ -216,8 +219,8 @@ public class KemitorDataResolver {
         return cursorToAppModel(cursor);
     }
 
-    private Map<AppModel, Boolean> cursorToAppModel(Cursor cursor) {
-        Map<AppModel, Boolean> packages = new HashMap<>();
+    private Map<IAppModel, Boolean> cursorToAppModel(Cursor cursor) {
+        Map<IAppModel, Boolean> packages = new HashMap<>();
         if (cursor != null) {
             cursor.moveToFirst();
             while(!cursor.isAfterLast()) {
@@ -226,10 +229,17 @@ public class KemitorDataResolver {
                 String packageName = cursor.getString(index++);
                 int isSelected = cursor.getInt(index);
                 String profileIds = cursor.getString(index++);
-                int packageBlockLevel = cursor.getInt(index);
+                int packageBlockLevel = cursor.getInt(index++);
+                int isLauncherApp = cursor.getInt(index);
 
-                AppModel model = new AppModel(uniqueId, packageName, isSelected == 1, profileIds,
-                        BlockLevel.getBlockLevelFromValue(packageBlockLevel));
+                IAppModel model;
+                if (isLauncherApp == 1) {
+                    model = new LauncherAppModel(uniqueId, packageName, profileIds,
+                            BlockLevel.getBlockLevelFromValue(packageBlockLevel));
+                } else {
+                    model = new AppModel(uniqueId, packageName, isSelected == 1, profileIds,
+                            BlockLevel.getBlockLevelFromValue(packageBlockLevel));
+                }
                 packages.put(model, model.isSelected());
                 cursor.moveToNext();
             }
