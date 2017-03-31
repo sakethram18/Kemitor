@@ -5,6 +5,7 @@ import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -18,6 +19,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.apps.karums.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED;
@@ -25,15 +27,14 @@ import static com.apps.karums.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SERVICE
 public class KemitorAccessibilityService extends AccessibilityService {
 
     Map<String, Integer> mNotificationIdMap = new HashMap<>();
-    Map<String, Long> mSnoozeTimeMap = new HashMap<>();
     AtomicInteger mNotificationId = new AtomicInteger();
     private static final String TAG = "KemitorAccessibilityService";
     KemitorOverlayAlert mOverlayAlert = null;
     boolean mIsLauncherApp = true;
     boolean mIsUserChosenEnter = false;
-    static final long SNOOZE_TIME = 60 * 1000; // 1 min
-    long mPreviousClickTime = 0;
-
+    static final long SNOOZE_TIME = 30 * 1000; // 1 min
+    ConcurrentHashMap<String, AppData> mAppData = new ConcurrentHashMap<>();
+    private static final int MAX_SNOOZES = 3;
     public KemitorAccessibilityService() {
     }
 
@@ -59,6 +60,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
             } else {
                 ArrayList<String> selectedAppsStr = intent.getStringArrayListExtra(AppConstants
                         .LIST_OF_SELECTED_APPS);
+                initializeAppData(selectedAppsStr);
                 FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
                         "service with configuration: " + selectedAppsStr.toString());
                 AccessibilityServiceInfo info = new AccessibilityServiceInfo();
@@ -75,14 +77,27 @@ public class KemitorAccessibilityService extends AccessibilityService {
 //                info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
                 info.packageNames = (selectedAppsStr.toArray(new String[0]));
                 info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-                info.notificationTimeout = 2000;
+                info.notificationTimeout = 100;
                 this.setServiceInfo(info);
             }
         } else {
+            mAppData.clear();
             FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
                     "service with null intent");
         }
         FirebaseCrash.report(new Throwable("Testing KemitorAccessibilityService"));
+    }
+
+    private void initializeAppData(ArrayList<String> packageNames) {
+        for (String packageName: packageNames) {
+            mAppData.put(packageName, new AppData());
+        }
+    }
+
+    private void setLauncherOnTop() {
+        for (AppData appData : mAppData.values()) {
+            appData.setIsAppOnTop(false);
+        }
     }
 
         /* Algorithm - pseudo code
@@ -115,7 +130,6 @@ public class KemitorAccessibilityService extends AccessibilityService {
                     ii. Can quit/reenter the app multiple times during the snooze time and can
                     stay in the app during snooze time or enters app after snooze time
             if (conditions to display dialog) {
-                // Increment counter for the no of times snoozed in Map 1
                 // Display dialog with quit and snooze or just quit
             } else {
                 // Don't display anything
@@ -134,6 +148,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
             1. Start the thread for that package in Map 2, if it is not currently running and
             dismiss dialog
             2. Update last clicked time for that package in Map 1
+            3. Increment snooze counter in Map 1
         Quit clicked:
             1. Dismiss dialog
 
@@ -152,19 +167,30 @@ public class KemitorAccessibilityService extends AccessibilityService {
         DataModel dataModel = DataModel.getInstance();
         FirebaseCrash.logcat(Log.VERBOSE, TAG, "onAccessibilityEvent - Event received for: " + packageName);
         if (dataModel.getIsLauncherApp(packageName)) {
-            mIsLauncherApp = true;
+//            mIsLauncherApp = true;
 //            mIsUserChosenEnter = false;
+            setLauncherOnTop();
         } else {
-            if (mIsLauncherApp) {
-//                if (!mIsUserChosenEnter && !mOverlayAlert.isAlertShowing()) {
-                if (!mOverlayAlert.isAlertShowing()) {
-                    if (SystemClock.elapsedRealtime() - mPreviousClickTime < SNOOZE_TIME) {
-                        return;
-                    }
-                    showOverlayDialog(packageName);
-                }
+            AppData data = mAppData.get(packageName);
+            data.setIsAppOnTop(true);
+            if (Integer.MIN_VALUE == data.getLastClickTime()) {
+                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+            } else if ((SystemClock.elapsedRealtime() - data.getLastClickTime() > SNOOZE_TIME) &&
+                    data.getNoOfSnoozes() < MAX_SNOOZES ){
+                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
             }
         }
+
+//            if (mIsLauncherApp) {
+////                if (!mIsUserChosenEnter && !mOverlayAlert.isAlertShowing()) {
+//                if (!mOverlayAlert.isAlertShowing()) {
+//                    if (SystemClock.elapsedRealtime() - mPreviousClickTime < SNOOZE_TIME) {
+//                        return;
+//                    }
+//                    showOverlayDialog(packageName);
+//                }
+//            }
+//        }
     }
 
     @Override
@@ -172,21 +198,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     }
 
-    private void showOverlayDialog(String packageName) {
-//        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-//                WindowManager.LayoutParams.WRAP_CONTENT,
-//                WindowManager.LayoutParams.WRAP_CONTENT,
-//                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT,
-//                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-//                PixelFormat.TRANSLUCENT);
-//        params.gravity = Gravity.LEFT;
-//
-//        FrameLayout frameLayout = new FrameLayout(this);
-//        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        // Here is the place where you can inject whatever layout you want.
-//        View window = layoutInflater.inflate(R.layout.overlay_window, frameLayout);
-//        WindowManager windowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
-//        windowManager.addView(window, params);
+    private void showOverlayDialog(final String packageName, boolean isStrict) {
 
         String appName = DataModel.getInstance().getAppModel(packageName).getAppName();
         String message = String.format(getString(R.string.sure_enter_app_description), appName);
@@ -194,7 +206,18 @@ public class KemitorAccessibilityService extends AccessibilityService {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
 //                mIsUserChosenEnter = true;
-                mPreviousClickTime = SystemClock.elapsedRealtime();
+                AppData data = mAppData.get(packageName);
+                data.setLastClickTime(SystemClock.elapsedRealtime());
+                data.setNoOfSnoozes(data.getNoOfSnoozes() + 1);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        AppData data = mAppData.get(packageName);
+                        if (data.isAppOnTop()) {
+                            showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+                        }
+                    }
+                }, SNOOZE_TIME);
                 dialogInterface.dismiss();
             }
         }, new DialogInterface.OnClickListener() {
@@ -206,8 +229,10 @@ public class KemitorAccessibilityService extends AccessibilityService {
                 startActivity(startMain);
                 dialogInterface.dismiss();
             }
-        });
-        mOverlayAlert.showAlert();
+        }, isStrict);
+        if (!mOverlayAlert.isAlertShowing()) {
+            mOverlayAlert.showAlert();
+        }
     }
 
     private void buildNotif(String packageName, String text) {
@@ -239,5 +264,35 @@ public class KemitorAccessibilityService extends AccessibilityService {
     @Override
     public void onDestroy() {
         Toast.makeText(this, "Accessibility service done", Toast.LENGTH_SHORT).show();
+    }
+
+    private class AppData {
+        private long mLastClickTime = Integer.MIN_VALUE;
+        private boolean mIsAppOnTop;
+        private  int mNoOfSnoozes = 0;
+
+        long getLastClickTime() {
+            return mLastClickTime;
+        }
+
+        void setLastClickTime(long mLastClickTime) {
+            this.mLastClickTime = mLastClickTime;
+        }
+
+        boolean isAppOnTop() {
+            return mIsAppOnTop;
+        }
+
+        void setIsAppOnTop(boolean mIsAppOnTop) {
+            this.mIsAppOnTop = mIsAppOnTop;
+        }
+
+        int getNoOfSnoozes() {
+            return mNoOfSnoozes;
+        }
+
+        void setNoOfSnoozes(int mNoOfSnoozes) {
+            this.mNoOfSnoozes = mNoOfSnoozes;
+        }
     }
 }

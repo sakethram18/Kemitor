@@ -30,13 +30,21 @@ public class KemitorOverlayAlert {
     }
 
     public void createOverlayAlert(String title, String message, DialogInterface.OnClickListener
-            onDoneListener, DialogInterface.OnClickListener onCancelListener) {
-        mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
-                .setTitle(title)
-                .setMessage(message)
-                .setPositiveButton(mContext.getString(R.string.snooze_button), onDoneListener)
-                .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
-                .create();
+            onDoneListener, DialogInterface.OnClickListener onCancelListener, boolean isStrict) {
+        if (isStrict) {
+            mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
+                    .create();
+        } else {
+            mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton(mContext.getString(R.string.snooze_button), onDoneListener)
+                    .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
+                    .create();
+        }
         // Disables back key when dialog is displayed
         mDialog.setCancelable(false);
         // Disables touching outside
