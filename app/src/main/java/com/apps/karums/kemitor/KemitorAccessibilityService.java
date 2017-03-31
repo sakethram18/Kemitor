@@ -5,6 +5,7 @@ import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.NotificationManager;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -24,11 +25,14 @@ import static com.apps.karums.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SERVICE
 public class KemitorAccessibilityService extends AccessibilityService {
 
     Map<String, Integer> mNotificationIdMap = new HashMap<>();
+    Map<String, Long> mSnoozeTimeMap = new HashMap<>();
     AtomicInteger mNotificationId = new AtomicInteger();
     private static final String TAG = "KemitorAccessibilityService";
     KemitorOverlayAlert mOverlayAlert = null;
     boolean mIsLauncherApp = true;
     boolean mIsUserChosenEnter = false;
+    static final long SNOOZE_TIME = 60 * 1000; // 1 min
+    long mPreviousClickTime = 0;
 
     public KemitorAccessibilityService() {
     }
@@ -66,9 +70,12 @@ public class KemitorAccessibilityService extends AccessibilityService {
                 //TODO: The service should also listen to any new launcher apps being installed
                 // while it is running in the background
                 info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
+
+//                      |  AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED;
+//                info.eventTypes = AccessibilityEvent.TYPES_ALL_MASK;
                 info.packageNames = (selectedAppsStr.toArray(new String[0]));
                 info.feedbackType = AccessibilityServiceInfo.FEEDBACK_GENERIC;
-                info.notificationTimeout = 100;
+                info.notificationTimeout = 2000;
                 this.setServiceInfo(info);
             }
         } else {
@@ -77,6 +84,64 @@ public class KemitorAccessibilityService extends AccessibilityService {
         }
         FirebaseCrash.report(new Throwable("Testing KemitorAccessibilityService"));
     }
+
+        /* Algorithm - pseudo code
+
+        *** Assuming only window state changed events are received ***
+
+        Map 1:
+        ConcurrentHashMap<Package name,
+        <Last snooze click event (initialize with INT_MIN),
+        No of snoozes until now,
+        boolean for is app on top>>
+
+        Map 2:
+        ConcurrentHashMap<Package name,
+        a thread that keeps checking if the launcher is on top for every minute during the snooze
+        time>
+
+        *** OnAccessibilityEvent ***
+        if (launcher app) {
+            // Update boolean for is app on top for all packages to false in Map 1
+        } else { // normal app
+            // Update boolean for is app on top for that packages to true in Map 1
+            // Conditions to display dialog:
+                1. If the user entered for the first time -> if last snooze click event is
+                INT_MIN, display dialog and skip steps below
+                2. If the user snoozed, closed and again uses app after snooze time -> if elapsed
+                time minus last click time is greater than snooze time, display dialog and skip
+                below steps
+                    i. Can remain in the app for the entire snooze time
+                    ii. Can quit/reenter the app multiple times during the snooze time and can
+                    stay in the app during snooze time or enters app after snooze time
+            if (conditions to display dialog) {
+                // Increment counter for the no of times snoozed in Map 1
+                // Display dialog with quit and snooze or just quit
+            } else {
+                // Don't display anything
+            }
+        }
+
+        *** Inside run of each thread ***
+        Post run after snooze time
+            if (boolean for is app on top true for that package) {
+                Display dialog
+            }
+        }
+
+        *** On dialog button click events ***
+        Snooze clicked:
+            1. Start the thread for that package in Map 2, if it is not currently running and
+            dismiss dialog
+            2. Update last clicked time for that package in Map 1
+        Quit clicked:
+            1. Dismiss dialog
+
+         */
+
+
+
+
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
@@ -88,10 +153,14 @@ public class KemitorAccessibilityService extends AccessibilityService {
         FirebaseCrash.logcat(Log.VERBOSE, TAG, "onAccessibilityEvent - Event received for: " + packageName);
         if (dataModel.getIsLauncherApp(packageName)) {
             mIsLauncherApp = true;
-            mIsUserChosenEnter = false;
+//            mIsUserChosenEnter = false;
         } else {
             if (mIsLauncherApp) {
-                if (!mIsUserChosenEnter && !mOverlayAlert.isAlertShowing()) {
+//                if (!mIsUserChosenEnter && !mOverlayAlert.isAlertShowing()) {
+                if (!mOverlayAlert.isAlertShowing()) {
+                    if (SystemClock.elapsedRealtime() - mPreviousClickTime < SNOOZE_TIME) {
+                        return;
+                    }
                     showOverlayDialog(packageName);
                 }
             }
@@ -124,7 +193,8 @@ public class KemitorAccessibilityService extends AccessibilityService {
         mOverlayAlert.createOverlayAlert(getString(R.string.enter_app), message, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                mIsUserChosenEnter = true;
+//                mIsUserChosenEnter = true;
+                mPreviousClickTime = SystemClock.elapsedRealtime();
                 dialogInterface.dismiss();
             }
         }, new DialogInterface.OnClickListener() {

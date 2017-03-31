@@ -13,6 +13,7 @@ import com.apps.karums.kemitor.R;
 
 public class KemitorOverlayAlert {
 
+    //TODO: Fix this static variable to avoid memory leaks
     private static KemitorOverlayAlert mOverlayAlert = null;
     private AlertDialog mDialog = null;
     private Context mContext;
@@ -33,8 +34,8 @@ public class KemitorOverlayAlert {
         mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("Enter", onDoneListener)
-                .setNegativeButton("Quit", onCancelListener)
+                .setPositiveButton(mContext.getString(R.string.snooze_button), onDoneListener)
+                .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
                 .create();
         // Disables back key when dialog is displayed
         mDialog.setCancelable(false);
