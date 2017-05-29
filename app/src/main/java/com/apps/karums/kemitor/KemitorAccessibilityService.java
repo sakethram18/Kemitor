@@ -32,7 +32,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
     KemitorOverlayAlert mOverlayAlert = null;
     boolean mIsLauncherApp = true;
     boolean mIsUserChosenEnter = false;
-    static final long SNOOZE_TIME = 30 * 1000; // 1 min
+    static final long SNOOZE_TIME = 30 * 1000; // 30 secs
     ConcurrentHashMap<String, AppData> mAppData = new ConcurrentHashMap<>();
     private static final int MAX_SNOOZES = 3;
     public KemitorAccessibilityService() {
@@ -42,7 +42,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Toast.makeText(this, "Accessibility service starting", Toast.LENGTH_SHORT).show();
         FirebaseCrash.logcat(Log.VERBOSE, TAG, "onStartCommand - Accessibility service starting");
-        mOverlayAlert = KemitorOverlayAlert.getOverlayAlert(this);
+        mOverlayAlert = KemitorOverlayAlert.getOverlayAlert();
         setServiceConfiguration(intent);
         // If we get killed, after returning from here, restart and redeliver the intent
         return START_REDELIVER_INTENT;
@@ -85,7 +85,6 @@ public class KemitorAccessibilityService extends AccessibilityService {
             FirebaseCrash.logcat(Log.VERBOSE, TAG, "setServiceConfiguration - Starting " +
                     "service with null intent");
         }
-        FirebaseCrash.report(new Throwable("Testing KemitorAccessibilityService"));
     }
 
     private void initializeAppData(ArrayList<String> packageNames) {
@@ -173,12 +172,15 @@ public class KemitorAccessibilityService extends AccessibilityService {
         } else {
             AppData data = mAppData.get(packageName);
             data.setIsAppOnTop(true);
-            if (Integer.MIN_VALUE == data.getLastClickTime()) {
-                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
-            } else if ((SystemClock.elapsedRealtime() - data.getLastClickTime() > SNOOZE_TIME) &&
-                    data.getNoOfSnoozes() < MAX_SNOOZES ){
+            if ((SystemClock.elapsedRealtime() - data.getLastClickTime() > SNOOZE_TIME)) {
                 showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
             }
+//            if (Integer.MIN_VALUE == data.getLastClickTime()) {
+//                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+//            } else if ((SystemClock.elapsedRealtime() - data.getLastClickTime() > SNOOZE_TIME) &&
+//                    data.getNoOfSnoozes() <= MAX_SNOOZES ){
+//                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+//            }
         }
 
 //            if (mIsLauncherApp) {
@@ -198,7 +200,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     }
 
-    private void showOverlayDialog(final String packageName, boolean isStrict) {
+    private synchronized void showOverlayDialog(final String packageName, boolean isStrict) {
 
         String appName = DataModel.getInstance().getAppModel(packageName).getAppName();
         String message = String.format(getString(R.string.sure_enter_app_description), appName);
@@ -219,6 +221,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
                     }
                 }, SNOOZE_TIME);
                 dialogInterface.dismiss();
+                mOverlayAlert.setIsShowing(false);
             }
         }, new DialogInterface.OnClickListener() {
             @Override
@@ -228,10 +231,12 @@ public class KemitorAccessibilityService extends AccessibilityService {
                 startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(startMain);
                 dialogInterface.dismiss();
+                mOverlayAlert.setIsShowing(false);
             }
-        }, isStrict);
+        }, isStrict, this);
         if (!mOverlayAlert.isAlertShowing()) {
             mOverlayAlert.showAlert();
+            mOverlayAlert.setIsShowing(true);
         }
     }
 

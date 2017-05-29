@@ -41,7 +41,6 @@ public class DataModel {
                             .getPackageName() + " | Input package name: " + packageName);
                 }
             }
-            FirebaseCrash.report(new Throwable("Testing DataModel"));
             throw new IllegalArgumentException("Package not found: " + packageName);
         } else {
             throw new IllegalArgumentException("Attempting to access the following package when " +

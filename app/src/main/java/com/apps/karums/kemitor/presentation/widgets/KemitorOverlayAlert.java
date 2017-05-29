@@ -3,6 +3,7 @@ package com.apps.karums.kemitor.presentation.widgets;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.view.LayoutInflater;
 import android.view.WindowManager;
 
 import com.apps.karums.kemitor.R;
@@ -16,36 +17,36 @@ public class KemitorOverlayAlert {
     //TODO: Fix this static variable to avoid memory leaks
     private static KemitorOverlayAlert mOverlayAlert = null;
     private AlertDialog mDialog = null;
-    private Context mContext;
+    private boolean mIsShowing = false;
 
-    private KemitorOverlayAlert(Context context) {
-        mContext = context;
+    private KemitorOverlayAlert() {
     }
 
-    public static KemitorOverlayAlert getOverlayAlert(Context context) {
+    public static KemitorOverlayAlert getOverlayAlert() {
         if (mOverlayAlert == null) {
-            mOverlayAlert = new KemitorOverlayAlert(context.getApplicationContext());
+            mOverlayAlert = new KemitorOverlayAlert();
         }
         return mOverlayAlert;
     }
 
     public void createOverlayAlert(String title, String message, DialogInterface.OnClickListener
-            onDoneListener, DialogInterface.OnClickListener onCancelListener, boolean isStrict) {
+            onDoneListener, DialogInterface.OnClickListener onCancelListener, boolean isStrict,
+                                   Context context) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setView(inflater.inflate(R.layout.alert_dialog, null));
         if (isStrict) {
-            mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
-                    .setTitle(title)
+            builder.setTitle(title)
                     .setMessage(message)
-                    .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
-                    .create();
+                    .setNegativeButton(context.getString(R.string.quit_button), onCancelListener);
         } else {
-            mDialog = new AlertDialog.Builder(mContext, R.style.OverlayDialog)
-                    .setTitle(title)
+            builder.setTitle(title)
                     .setMessage(message)
-                    .setPositiveButton(mContext.getString(R.string.snooze_button), onDoneListener)
-                    .setNegativeButton(mContext.getString(R.string.quit_button), onCancelListener)
-                    .create();
+                    .setPositiveButton(context.getString(R.string.snooze_button), onDoneListener)
+                    .setNegativeButton(context.getString(R.string.quit_button), onCancelListener);
         }
         // Disables back key when dialog is displayed
+        mDialog = builder.create();
         mDialog.setCancelable(false);
         // Disables touching outside
         mDialog.setCanceledOnTouchOutside(false);
@@ -64,12 +65,16 @@ public class KemitorOverlayAlert {
         if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
             mDialog = null;
+            mIsShowing = false;
         }
     }
 
     public boolean isAlertShowing() {
-        return mDialog != null && mDialog.isShowing();
+        return mIsShowing;
     }
 
+    public void setIsShowing(boolean isShowing) {
+        mIsShowing = isShowing;
+    }
 
 }

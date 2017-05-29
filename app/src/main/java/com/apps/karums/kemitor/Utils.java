@@ -173,7 +173,7 @@ public class Utils {
         for (int i = 0; i < pkgAppsList.size(); i++) {
             ResolveInfo r = pkgAppsList.get(i);
             String packageName = r.activityInfo.packageName;
-            String appName = (String) r.activityInfo.loadLabel(pm);
+            String appName = r.activityInfo.loadLabel(pm).toString();
             Drawable icon = r.loadIcon(pm);
             IAppModel model = new AppModel(packageName, appName, icon);
             // TODO: Add system apps with a warning to the user
