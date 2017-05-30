@@ -4,7 +4,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.EditText;
 
 import com.apps.karums.kemitor.R;
 
@@ -32,9 +34,9 @@ public class KemitorOverlayAlert {
     public void createOverlayAlert(String title, String message, DialogInterface.OnClickListener
             onDoneListener, DialogInterface.OnClickListener onCancelListener, boolean isStrict,
                                    Context context) {
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+        AlertDialogView dialogView = new AlertDialogView(context);
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setView(inflater.inflate(R.layout.alert_dialog, null));
+        builder.setView(dialogView);
         if (isStrict) {
             builder.setTitle(title)
                     .setMessage(message)
@@ -45,12 +47,28 @@ public class KemitorOverlayAlert {
                     .setPositiveButton(context.getString(R.string.snooze_button), onDoneListener)
                     .setNegativeButton(context.getString(R.string.quit_button), onCancelListener);
         }
-        // Disables back key when dialog is displayed
         mDialog = builder.create();
+        // Disables back key when dialog is displayed
         mDialog.setCancelable(false);
         // Disables touching outside
         mDialog.setCanceledOnTouchOutside(false);
+        //TODO: Push the dialog up when keyboard is opened
+        mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+        mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
+
+
+        EditText editText=(EditText) mDialog.findViewById(R.id.et_user_typed_quotation);
+
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams
+                            .SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+                }
+            }
+        });
     }
 
     public void showAlert() {

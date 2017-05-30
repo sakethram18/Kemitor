@@ -21,6 +21,10 @@
         <item name="android:windowAnimationStyle">@style/OverlayDialogAnimation</item>
     </style>
 
+    <style name="AlertOverlayDialog" parent="@android:style/Theme.Material.Dialog">
+        <item name="android:windowAnimationStyle">@style/OverlayDialogAnimation</item>
+    </style>
+
     <style name="OverlayDialogAnimation">
         <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
         <item name="android:windowExitAnimation">@android:anim/fade_out</item>

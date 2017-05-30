@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+                android:padding="@dimen/padding_content">
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello, Kemitor"/>
+        android:text="@string/dialog_enter_sentence"/>
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="This is a custom dialog"/>
+        android:text="@string/app_name"
+        android:id="@+id/tv_quotation"/>
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Bye, Kemitor"/>
-
+        android:id="@+id/tv_status"
+        android:text="@string/mismatch"
+        android:textColor="@color/red"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textMultiLine"
+        android:id="@+id/et_user_typed_quotation"/>
 </LinearLayout>

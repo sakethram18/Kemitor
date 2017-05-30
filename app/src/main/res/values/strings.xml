@@ -52,4 +52,9 @@
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <!-- Dialog strings -->
+    <string name="dialog_enter_sentence">Type in the following sentence to unlock snooze:</string>
+    <string name="mismatch">Mismatch</string>
+    <string name="match">Match</string>
 </resources>
