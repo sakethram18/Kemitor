@@ -13,6 +13,7 @@ import android.view.accessibility.AccessibilityEvent;
 import android.widget.Toast;
 
 import com.apps.karums.kemitor.data_access.DataModel;
+import com.apps.karums.kemitor.presentation.activities.AlertDialogActivity;
 import com.apps.karums.kemitor.presentation.widgets.KemitorOverlayAlert;
 import com.google.firebase.crash.FirebaseCrash;
 
@@ -24,7 +25,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.apps.karums.kemitor.AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED;
 
-public class KemitorAccessibilityService extends AccessibilityService {
+public class KemitorAccessibilityService extends AccessibilityService implements KemitorOverlayAlert.AlertDialogListener {
 
     Map<String, Integer> mNotificationIdMap = new HashMap<>();
     AtomicInteger mNotificationId = new AtomicInteger();
@@ -43,6 +44,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
         Toast.makeText(this, "Accessibility service starting", Toast.LENGTH_SHORT).show();
         FirebaseCrash.logcat(Log.VERBOSE, TAG, "onStartCommand - Accessibility service starting");
         mOverlayAlert = KemitorOverlayAlert.getOverlayAlert();
+        mOverlayAlert.addAlertDialogListener(this);
         setServiceConfiguration(intent);
         // If we get killed, after returning from here, restart and redeliver the intent
         return START_REDELIVER_INTENT;
@@ -173,7 +175,13 @@ public class KemitorAccessibilityService extends AccessibilityService {
             AppData data = mAppData.get(packageName);
             data.setIsAppOnTop(true);
             if ((SystemClock.elapsedRealtime() - data.getLastClickTime() > SNOOZE_TIME)) {
-                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+//                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
+                Intent dialogIntent = new Intent(this, AlertDialogActivity.class);
+                dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                dialogIntent.putExtra(AlertDialogActivity.PACKAGE_NAME, packageName);
+                dialogIntent.putExtra(AlertDialogActivity.IS_STRICT, MAX_SNOOZES <= data
+                        .getNoOfSnoozes());
+                startActivity(dialogIntent);
             }
 //            if (Integer.MIN_VALUE == data.getLastClickTime()) {
 //                showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
@@ -200,45 +208,7 @@ public class KemitorAccessibilityService extends AccessibilityService {
 
     }
 
-    private synchronized void showOverlayDialog(final String packageName, boolean isStrict) {
 
-        String appName = DataModel.getInstance().getAppModel(packageName).getAppName();
-        String message = String.format(getString(R.string.sure_enter_app_description), appName);
-        mOverlayAlert.createOverlayAlert(getString(R.string.enter_app), message, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-//                mIsUserChosenEnter = true;
-                AppData data = mAppData.get(packageName);
-                data.setLastClickTime(SystemClock.elapsedRealtime());
-                data.setNoOfSnoozes(data.getNoOfSnoozes() + 1);
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        AppData data = mAppData.get(packageName);
-                        if (data.isAppOnTop()) {
-                            showOverlayDialog(packageName, MAX_SNOOZES <= data.getNoOfSnoozes());
-                        }
-                    }
-                }, SNOOZE_TIME);
-                dialogInterface.dismiss();
-                mOverlayAlert.setIsShowing(false);
-            }
-        }, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent startMain = new Intent(Intent.ACTION_MAIN);
-                startMain.addCategory(Intent.CATEGORY_HOME);
-                startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(startMain);
-                dialogInterface.dismiss();
-                mOverlayAlert.setIsShowing(false);
-            }
-        }, isStrict, this);
-        if (!mOverlayAlert.isAlertShowing()) {
-            mOverlayAlert.showAlert();
-            mOverlayAlert.setIsShowing(true);
-        }
-    }
 
     private void buildNotif(String packageName, String text) {
         NotificationCompat.Builder mBuilder;
@@ -269,6 +239,37 @@ public class KemitorAccessibilityService extends AccessibilityService {
     @Override
     public void onDestroy() {
         Toast.makeText(this, "Accessibility service done", Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onDoneSelected(final String packageName) {
+        AppData data = mAppData.get(packageName);
+        data.setLastClickTime(SystemClock.elapsedRealtime());
+        data.setNoOfSnoozes(data.getNoOfSnoozes() + 1);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                KemitorAccessibilityService.AppData data = mAppData.get(packageName);
+                if (data.isAppOnTop()) {
+                    Intent dialogIntent = new Intent(KemitorAccessibilityService.this,
+                            AlertDialogActivity.class);
+                    dialogIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    dialogIntent.putExtra(AlertDialogActivity.PACKAGE_NAME, packageName);
+                    dialogIntent.putExtra(AlertDialogActivity.IS_STRICT, MAX_SNOOZES <= data
+                            .getNoOfSnoozes());
+                    startActivity(dialogIntent);
+                }
+            }
+        }, SNOOZE_TIME);
+
+    }
+
+    @Override
+    public void onCancelSelected() {
+        Intent startMain = new Intent(Intent.ACTION_MAIN);
+        startMain.addCategory(Intent.CATEGORY_HOME);
+        startMain.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(startMain);
     }
 
     private class AppData {
