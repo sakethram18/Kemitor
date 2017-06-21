@@ -56,19 +56,6 @@ public class KemitorOverlayAlert {
         mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
         mDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
-
-
-        EditText editText=(EditText) mDialog.findViewById(R.id.et_user_typed_quotation);
-
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    mDialog.getWindow().setSoftInputMode(WindowManager.LayoutParams
-                            .SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-                }
-            }
-        });
     }
 
     public void showAlert() {
