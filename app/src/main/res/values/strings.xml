@@ -25,8 +25,12 @@
     <string name="ok_text">OK</string>
     <string name="cancel_text">Cancel</string>
     <string name="profiles">Profiles</string>
+    <string name="edit_profile_settings">Edit Profile Settings</string>
     <string name="block_strictness">Block strictness:\u0020</string>
     <string name="block_strictness_level">Some level</string>
+    <string name="profile_start_time_label">Start Time:</string>
+    <string name="profile_end_time_label">End Time:</string>
+    <string name="days_to_repeat">Days to Repeat:</string>
 
     <string name="strictness_level_1">Level 1</string>
     <string name="strictness_level_2">Level 2</string>

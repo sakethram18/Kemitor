@@ -1,19 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.apps.karums.kemitor.presentation.activities.ProfileSettingsActivity">
 
+    <EditText
+        android:id="@+id/newProfileName"
+        android:inputType="text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:hint="@string/profile_name" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="20dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_start_time_label"
+            android:layout_gravity="start"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/profileStartTime"
+            android:text="HH:MM:SS"
+            android:layout_gravity="end"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="20dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/profile_end_time_label"
+            android:layout_gravity="start"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/profileEndTime"
+            android:text="HH:MM:SS"
+            android:layout_gravity="end"/>
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/days_to_repeat"
+        android:layout_margin="20dp"/>
     <com.apps.karums.kemitor.presentation.widgets.DayOfTheWeekSelector
         android:layout_width="368dp"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
         android:id="@+id/dSelector"
-        tools:layout_editor_absoluteY="0dp"
-        tools:layout_editor_absoluteX="8dp">
+        android:layout_gravity="center">
     </com.apps.karums.kemitor.presentation.widgets.DayOfTheWeekSelector>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>
