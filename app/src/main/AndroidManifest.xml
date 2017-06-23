@@ -49,12 +49,15 @@
 
         <activity android:name=".presentation.activities.ProfileCardsActivity">
         </activity>
-        <activity android:name=".presentation.activities.AlertDialogActivity"
-                  android:theme="@style/Theme.Transparent"
-                  android:taskAffinity=""
-                  android:noHistory="true"
-                  android:excludeFromRecents="true"
-                  android:windowSoftInputMode="adjustResize">
+        <activity
+            android:name=".presentation.activities.AlertDialogActivity"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:taskAffinity=""
+            android:theme="@style/Theme.Transparent"
+            android:windowSoftInputMode="adjustResize">
+        </activity>
+        <activity android:name=".presentation.activities.ProfileSettingsActivity">
         </activity>
     </application>
 

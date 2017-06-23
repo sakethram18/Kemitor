@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_sunday"
+        android:background="@drawable/chip_background"
+        android:text="@string/sunday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_monday"
+        android:background="@drawable/chip_background"
+        android:text="@string/monday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_tuesday"
+        android:background="@drawable/chip_background"
+        android:text="@string/tuesday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_wednesday"
+        android:background="@drawable/chip_background"
+        android:text="@string/wednesday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_thursday"
+        android:background="@drawable/chip_background"
+        android:text="@string/thursday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_friday"
+        android:background="@drawable/chip_background"
+        android:text="@string/friday_acc"
+        android:textColor="@color/primary_light"/>
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:layout_weight="1" >
+    </Space>
+
+    <TextView
+        android:layout_width="@dimen/day_selector_size"
+        android:layout_height="@dimen/day_selector_size"
+        android:gravity="center_vertical|center_horizontal"
+        android:layout_margin="@dimen/day_selector_margin"
+        android:id="@+id/tv_saturday"
+        android:background="@drawable/chip_background"
+        android:text="@string/saturday_acc"
+        android:textColor="@color/primary_light"/>
+
+</LinearLayout>

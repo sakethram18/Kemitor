@@ -115,7 +115,8 @@ public class MainActivity extends AppCompatActivity
             Intent profileCardsActivity = new Intent(this, ProfileCardsActivity.class);
             startActivity(profileCardsActivity);
         } else if (id == R.id.nav_slideshow) {
-
+            Intent profileSettingsActivity = new Intent(this, ProfileSettingsActivity.class);
+            startActivity(profileSettingsActivity);
         } else if (id == R.id.nav_manage) {
 
         } else if (id == R.id.nav_share) {

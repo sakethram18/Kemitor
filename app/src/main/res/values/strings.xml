@@ -57,4 +57,23 @@
     <string name="dialog_enter_sentence">Type in the following sentence to unlock snooze:</string>
     <string name="mismatch">Mismatch</string>
     <string name="match">Match</string>
+
+    <!-- Day of the week -->
+    <string name="sunday_acc">S</string>
+    <string name="monday_acc">M</string>
+    <string name="tuesday_acc">T</string>
+    <string name="wednesday_acc">W</string>
+    <string name="thursday_acc">T</string>
+    <string name="friday_acc">F</string>
+    <string name="saturday_acc">S</string>
+
+    <string-array name="days_of_the_week">
+        <item>@string/sunday_acc</item>
+        <item>@string/monday_acc</item>
+        <item>@string/tuesday_acc</item>
+        <item>@string/wednesday_acc</item>
+        <item>@string/thursday_acc</item>
+        <item>@string/friday_acc</item>
+        <item>@string/saturday_acc</item>
+    </string-array>
 </resources>

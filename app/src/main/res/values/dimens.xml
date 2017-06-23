@@ -9,4 +9,7 @@
 
     <!-- Alert dialog dimensions -->
     <dimen name="padding_content">24dp</dimen>
+
+    <dimen name="day_selector_size">40dp</dimen>
+    <dimen name="day_selector_margin">2dp</dimen>
 </resources>
