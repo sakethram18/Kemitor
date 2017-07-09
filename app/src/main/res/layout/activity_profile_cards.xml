@@ -16,12 +16,6 @@
         android:indeterminateTint="@color/colorPrimaryDark"
         android:layout_centerInParent="true"/>
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/my_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"/>
-
     <com.google.android.gms.ads.AdView
         android:id="@+id/adViewProfiles"
         android:layout_width="wrap_content"
@@ -31,6 +25,13 @@
         ads:adSize="BANNER"
         app:adUnitId="@string/banner_ad_unit_id_profiles_screen">
     </com.google.android.gms.ads.AdView>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/my_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        android:layout_above="@id/adViewProfiles"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabAddProfile"
