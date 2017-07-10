@@ -29,6 +29,8 @@ public class KemitorDataProvider extends ContentProvider {
     private static final int PACKAGES_BY_ID = 2;
     private static final int PROFILES = 3;
     private static final int PROFILES_BY_ID = 4;
+    private static final int PP_MAP = 5;
+    private static final int PP_MAP_BY_ID = 6;
 
     static {
         URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -38,6 +40,9 @@ public class KemitorDataProvider extends ContentProvider {
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES, PROFILES);
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES + "/*",
                 PROFILES_BY_ID);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PP_MAP, PP_MAP);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES + "/*",
+                PP_MAP_BY_ID);
     }
 
     @Override
@@ -80,6 +85,19 @@ public class KemitorDataProvider extends ContentProvider {
                 selectionArgs = new String[1];
                 selectionArgs[0] = uri.getLastPathSegment();
                 break;
+            case PP_MAP:
+                Log.d(TAG, "Querying PP map table...");
+                checkPpMapColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PP_MAP);
+                break;
+            case PP_MAP_BY_ID:
+                Log.d(TAG, "Querying PP map table by pp map ID...");
+                checkPpMapColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PP_MAP);
+                queryBuilder.appendWhere(ContractConstants.PP_MAP_ID + "=?");
+                selectionArgs = new String[1];
+                selectionArgs[0] = uri.getLastPathSegment();
+                break;
             default:
                 Log.e(TAG, "Query initiated with unknown URI Type:\n URI: " + uri + "\nURI " +
                         "Type: " + uriMatch);
@@ -108,14 +126,22 @@ public class KemitorDataProvider extends ContentProvider {
         String table;
         int uriMatch = URI_MATCHER.match(uri);
         long id = 0;
+        Uri returnValue = null;
         switch (uriMatch) {
             case PACKAGES:
                 table = ContractConstants.TABLE_PACKAGES;
                 id = database.insertOrThrow(table, null, values);
+                returnValue = Uri.parse(ContractConstants.TABLE_PACKAGES + "/" + id);
                 break;
             case PROFILES:
                 table = ContractConstants.TABLE_PROFILES;
                 id = database.insertOrThrow(table, null, values);
+                returnValue = Uri.parse(ContractConstants.TABLE_PROFILES + "/" + id);
+                break;
+            case PP_MAP:
+                table = ContractConstants.TABLE_PP_MAP;
+                id = database.insert(table, null, values);
+                returnValue = Uri.parse(ContractConstants.TABLE_PP_MAP + "/" + id);
                 break;
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
@@ -123,7 +149,7 @@ public class KemitorDataProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri, null);
         Log.d(TAG, "Insert successful.");
 
-        return Uri.parse(ContractConstants.TABLE_PACKAGES + "/" + id);
+        return returnValue;
     }
 
     @Override
@@ -139,6 +165,9 @@ public class KemitorDataProvider extends ContentProvider {
                 break;
             case PROFILES:
                 table = ContractConstants.TABLE_PROFILES;
+                break;
+            case PP_MAP:
+                table = ContractConstants.TABLE_PP_MAP;
                 break;
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
@@ -205,6 +234,25 @@ public class KemitorDataProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+            case PP_MAP:
+                rowsDeleted = database.delete(ContractConstants.TABLE_PP_MAP, selection,
+                        selectionArgs);
+                break;
+            case PP_MAP_BY_ID:
+                String ppMapId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PP_MAP,
+                            ContractConstants.PP_MAP_ID + "=" + ppMapId,
+                            null);
+                } else {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PP_MAP,
+                            ContractConstants.PP_MAP_ID + "=" + ppMapId
+                                    + " and " + selection,
+                            selectionArgs);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -262,6 +310,28 @@ public class KemitorDataProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+            case PP_MAP:
+                rowsUpdated = database.update(ContractConstants.TABLE_PP_MAP,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case PP_MAP_BY_ID:
+                String ppMapId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PP_MAP,
+                            values,
+                            ContractConstants.PP_MAP_ID + "=" + ppMapId,
+                            null);
+                } else {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PP_MAP,
+                            values,
+                            ContractConstants.PP_MAP_ID + "=" + ppMapId
+                                    + " and "
+                                    + selection,
+                            selectionArgs);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -294,6 +364,21 @@ public class KemitorDataProvider extends ContentProvider {
                 throw new IllegalArgumentException("Unknown columns in the profiles projection");
             }
             Log.d(TAG, "Profiles projection columns verified");
+        }
+    }
+
+    private void checkPpMapColumns(String[] projection) {
+        if (projection != null) {
+            HashSet<String> allColumns = new HashSet<>(Arrays.asList(ContractConstants
+                    .PP_MAP_ALL_COLUMNS));
+            HashSet<String> projectionColumns = new HashSet<>(Arrays.asList(projection));
+
+            if (!allColumns.containsAll(projectionColumns)) {
+                Log.e(TAG, "Unknown columns in the profiles-package map projection");
+                throw new IllegalArgumentException("Unknown columns in the profiles-package map " +
+                        "projection");
+            }
+            Log.d(TAG, "Profiles-package map projection columns verified");
         }
     }
 }

@@ -44,6 +44,14 @@ public class ContractConstants {
     public static final String AUTHORITY            = "com.apps.karums.kemitordataprovider";
     public static final String CONTENT_URI          = "content://" + AUTHORITY;
 
-
+    // Profile-Package table constants
+    public static final String TABLE_PP_MAP = "profile_package_map";
+    public static final String PP_MAP_ID = "pp_map_id";
+    public static final String PP_MAP_PROFILE_ID = "pp_map_profile_id";
+    public static final String PP_MAP_PACKAGE_ID = "pp_map_package_id";
+    public static final String[] PP_MAP_ALL_COLUMNS = {PP_MAP_ID, PP_MAP_PROFILE_ID,
+            PP_MAP_PACKAGE_ID};
+    public static final String DEFAULT_PP_MAP_SORT_ORDER = PP_MAP_ID + COMMA_SPACE +
+            PP_MAP_PROFILE_ID + COMMA_SPACE + PP_MAP_PACKAGE_ID;
 
 }
