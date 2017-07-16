@@ -112,15 +112,15 @@ public class KemitorDataResolver {
         return 0;
     }
 
-    public int insertProfileAppModelMap(IProfileModel IProfileModel, List<IAppModel> appModels) {
-        if (IProfileModel != null && appModels != null && !appModels.isEmpty()) {
+    public int insertProfileAppModelMap(IProfileModel profileModel, List<IAppModel> appModels) {
+        if (profileModel != null && appModels != null && !appModels.isEmpty()) {
             ContentValues[] listValues = new ContentValues[appModels.size()];
             for (int i = 0; i < appModels.size(); i++) {
                 IAppModel model = appModels.get(i);
                 ContentValues values = new ContentValues();
                 UUID uniqueId = UUID.randomUUID();
                 values.put(ContractConstants.PP_MAP_ID, uniqueId.toString());
-                values.put(ContractConstants.PP_MAP_PACKAGE_ID, IProfileModel.getUniqueId());
+                values.put(ContractConstants.PP_MAP_PACKAGE_ID, profileModel.getUniqueId());
                 values.put(ContractConstants.PP_MAP_PACKAGE_ID, model.getUniqueId());
                 listValues[i] = values;
             }
@@ -293,14 +293,14 @@ public class KemitorDataResolver {
         return packages;
     }
 
-    public ArrayList<IAppModel> getAppModelsForProfileModel(IProfileModel profileModel) {
+    public ArrayList<IAppModel> getAppModelsForProfileModel(String profileUniqueId) {
         ArrayList<IAppModel> listOfAppsForProfile = null;
-        if (profileModel != null && profileModel.getUniqueId().length() != 0) {
+        if (profileUniqueId.length() != 0) {
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                     ContractConstants.TABLE_PP_MAP);
             String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
             String[] args = new String[1];
-            args[0] = profileModel.getUniqueId();
+            args[0] = profileUniqueId;
             Cursor cursor = mContext.getContentResolver().query(uri,
                     new String[]{ContractConstants.PP_MAP_PACKAGE_ID}, selection, args,
                     ContractConstants.DEFAULT_PP_MAP_SORT_ORDER);
@@ -341,12 +341,27 @@ public class KemitorDataResolver {
         return appIds;
     }
 
-    public ArrayList<IProfileModel> getAllProfileModel() {
+    public ArrayList<IProfileModel> getAllProfileModels() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PROFILES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
                 .PROFILES_ALL_COLUMNS, null, null, ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
         return cursorToProfileModel(cursor);
+    }
+
+    public IProfileModel getProfileModel(String profileModelId) {
+        Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                ContractConstants.TABLE_PROFILES);
+        String selection = ContractConstants.PROFILES_COLUMN_ID + "=?";
+        Cursor cursor = mContext.getContentResolver().query(uri,
+                ContractConstants.PROFILES_ALL_COLUMNS, selection, new String[]{profileModelId},
+                ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
+        ArrayList<IProfileModel> profileModels = cursorToProfileModel(cursor);
+        if (profileModels.size() != 1) {
+            FirebaseCrash.logcat(Log.ERROR, TAG, "Multiple profiles exist for a profile id");
+        }
+        return profileModels.get(0);
+
     }
 
     private ArrayList<IProfileModel> cursorToProfileModel(Cursor cursor) {

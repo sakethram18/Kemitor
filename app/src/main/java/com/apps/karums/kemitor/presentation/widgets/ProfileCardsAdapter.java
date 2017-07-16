@@ -159,4 +159,8 @@ public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapte
             }
         }).start();
     }
+
+    public IProfileModel getItemAt(int position) {
+        return mDataset.get(position);
+    }
 }

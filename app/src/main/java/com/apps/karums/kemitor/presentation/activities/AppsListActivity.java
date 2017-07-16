@@ -28,25 +28,29 @@ public class AppsListActivity extends AppCompatActivity {
     //TODO: Save previously saved apps and display the status while loading the list
     ProgressBar mProgressBar;
     Context mContext;
-    ArrayList<IAppModel> installedApps;
+    ArrayList<IAppModel> mInstalledApps;
     AppsArrayAdapter listArrayAdapter;
+    KemitorDataResolver mDataResolver;
+    String mCurrentProfileId;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_apps_list);
         setTitle(getString(R.string.select_apps));
-        mContext = this;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mContext = this;
+        mDataResolver = new KemitorDataResolver(this);
+        mCurrentProfileId = getIntent().getStringExtra(ProfileSettingsActivity.PROFILE_ID);
         mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
         final Handler handler = new Handler();
         new Thread(new Runnable() {
             @Override
             public void run() {
-                installedApps = Utils.getInstalledApps(mContext);
+                mInstalledApps = Utils.getInstalledApps(mContext);
                 final ListView appsListView = (ListView) findViewById(R.id.appsList);
-                listArrayAdapter = new AppsArrayAdapter(mContext, getFilteredApps(installedApps,
-                        false));
+                listArrayAdapter = new AppsArrayAdapter(mContext, getFilteredAndUpdatedApps(false));
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -98,13 +102,13 @@ public class AppsListActivity extends AppCompatActivity {
                 KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
                 dataResolver.deleteAllAppModels();
                 dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
-                dataResolver.bulkInsertAppModels(getFilteredApps(installedApps, true));
+                dataResolver.bulkInsertAppModels(getFilteredAndUpdatedApps(true));
             }
         }).start();
         //Update the data model cache
         DataModel.getInstance().clearAppsList();
         DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
-        DataModel.getInstance().updateAppsList(getFilteredApps(installedApps, true));
+        DataModel.getInstance().updateAppsList(getFilteredAndUpdatedApps(true));
 
         ArrayList<IAppModel> selectedApps = DataModel.getInstance().getSelectedApps();
 //        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
@@ -128,19 +132,32 @@ public class AppsListActivity extends AppCompatActivity {
 
     /**
      * Returns launcher apps or the other apps based on the boolean flag parameter
-     * @param listOfApps
-     * @param isLauncherApps
+     * @param includeLauncherApps
      * @return
      */
-    private ArrayList<IAppModel> getFilteredApps(ArrayList<IAppModel> listOfApps, boolean
-            isLauncherApps) {
+    private ArrayList<IAppModel> getFilteredAndUpdatedApps(boolean includeLauncherApps) {
         ArrayList<IAppModel> resultList = new ArrayList<>();
-        for (IAppModel model: listOfApps) {
-            if ((isLauncherApps && model.getIsLauncherApp()) || (!isLauncherApps && !model
+        for (IAppModel model: mInstalledApps) {
+            if ((includeLauncherApps && model.getIsLauncherApp()) || (!includeLauncherApps && !model
                     .getIsLauncherApp())) {
                 resultList.add(model);
             }
         }
-        return resultList;
+        return updateStatusInstalledApps(resultList);
+    }
+
+    private ArrayList<IAppModel> updateStatusInstalledApps(ArrayList<IAppModel> listOfApps) {
+        // Check what all apps are already selected for the given profile
+        ArrayList<IAppModel> dbAllApps = mDataResolver
+                .getAppModelsForProfileModel(mCurrentProfileId);
+        for(IAppModel model: listOfApps) {
+            for (IAppModel dbModel : dbAllApps) {
+                if (model.equals(dbModel)) {
+                    model.setSelected(dbModel.isSelected());
+                    break;
+                }
+            }
+        }
+        return listOfApps;
     }
 }

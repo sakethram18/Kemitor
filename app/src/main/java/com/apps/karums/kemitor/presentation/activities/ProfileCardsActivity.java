@@ -31,7 +31,7 @@ import java.util.ArrayList;
 
 public class ProfileCardsActivity extends AppCompatActivity {
     private static String LOG_TAG = "ProfileCardsActivity";
-    private RecyclerView.Adapter mAdapter;
+    private ProfileCardsAdapter mAdapter;
     private ArrayList<IProfileModel> mProfiles;
     private AdView mAdView;
     private Context mContext;
@@ -73,8 +73,11 @@ public class ProfileCardsActivity extends AppCompatActivity {
                         .MyClickListener() {
                     @Override
                     public void onItemClick(int position, View v) {
-                        Intent appsActivity = new Intent(ProfileCardsActivity.this, AppsListActivity.class);
-                        startActivity(appsActivity);
+                        Intent settingsIntent = new Intent(ProfileCardsActivity.this,
+                                ProfileSettingsActivity.class);
+                        settingsIntent.putExtra(ProfileSettingsActivity.PROFILE_ID,
+                                mAdapter.getItemAt(position).getUniqueId());
+                        startActivity(settingsIntent);
                     }
 
                     @Override

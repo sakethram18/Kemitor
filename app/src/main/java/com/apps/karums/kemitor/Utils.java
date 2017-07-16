@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by karums on 12/23/2016.
@@ -201,30 +200,12 @@ public class Utils {
                 return lhs.getAppName().toUpperCase().compareTo(rhs.getAppName().toUpperCase());
             }
         });
-        return updateStatusInstalledApps(context, listOfApps);
-    }
-
-
-    private static ArrayList<IAppModel> updateStatusInstalledApps(Context context,
-                                                                 ArrayList<IAppModel>
-            listOfApps) {
-        KemitorDataResolver resolver = new KemitorDataResolver(context);
-        ArrayList<IAppModel> dbAllApps = resolver.getAllAppModels();
-
-        for(IAppModel model: listOfApps) {
-            for (IAppModel dbModel : dbAllApps) {
-                if (model.equals(dbModel)) {
-                    model.setSelected(dbModel.isSelected());
-                    break;
-                }
-            }
-        }
         return listOfApps;
     }
 
     public static ArrayList<IProfileModel> getSavedProfiles(Context context) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
-        return resolver.getAllProfileModel();
+        return resolver.getAllProfileModels();
     }
 
     public static String getTopAppName(Context context) {

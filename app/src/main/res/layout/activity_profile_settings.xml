@@ -66,4 +66,25 @@
         android:layout_gravity="center">
     </com.apps.karums.kemitor.presentation.widgets.DayOfTheWeekSelector>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/applications"
+            android:layout_gravity="center_vertical"/>
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/chooseApps"
+            android:text="@string/select"
+            android:layout_gravity="end"/>
+    </LinearLayout>
+
+
+
+
 </LinearLayout>

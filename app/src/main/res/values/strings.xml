@@ -80,4 +80,7 @@
         <item>@string/friday_acc</item>
         <item>@string/saturday_acc</item>
     </string-array>
+
+    <string name="applications">Applications:</string>
+    <string name="select">Select</string>
 </resources>
