@@ -4,7 +4,7 @@ package com.apps.karums.kemitor.data_access;
  * Created by karums on 3/9/2017.
  */
 
-public class ProfileModel {
+public class ProfileModel implements IProfileModel {
 
     private String mUniqueId = "";
     private String mProfileName = "";
@@ -27,42 +27,52 @@ public class ProfileModel {
         mIsEnabled = isEnabled;
     }
 
+    @Override
     public String getProfileName() {
         return mProfileName;
     }
 
+    @Override
     public void setProfileName(String mProfileName) {
         this.mProfileName = mProfileName;
     }
 
+    @Override
     public String getUniqueId() {
         return mUniqueId;
     }
 
+    @Override
     public void setUniqueId(String mUniqueId) {
         this.mUniqueId = mUniqueId;
     }
 
+    @Override
     public boolean isEnabled() {
         return mIsEnabled;
     }
 
+    @Override
     public void setIsEnabled(boolean mIsEnabled) {
         this.mIsEnabled = mIsEnabled;
     }
 
+    @Override
     public boolean isProfileLevelSetting() {
         return mIsProfileLevelSetting;
     }
 
+    @Override
     public void setIsProfileLevelSetting(boolean mIsProfileLevelSetting) {
         this.mIsProfileLevelSetting = mIsProfileLevelSetting;
     }
 
+    @Override
     public BlockLevel getProfileBlockLevel() {
         return mProfileBlockLevel;
     }
 
+    @Override
     public void setProfileBlockLevel(BlockLevel profileBlockLevel) {
         this.mProfileBlockLevel = profileBlockLevel;
     }

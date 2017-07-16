@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.google.firebase.crash.FirebaseCrash;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,7 +62,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public boolean insertProfileModel(ProfileModel model) {
+    public boolean insertProfileModel(IProfileModel model) {
         if (model != null) {
             Log.d(TAG, "Inserting profile model...");
             ContentValues values = new ContentValues();
@@ -103,7 +105,30 @@ public class KemitorDataResolver {
                     .TABLE_PACKAGES);
             int rowsInserted = mContext.getContentResolver().bulkInsert(uri, listValues);
             if (rowsInserted == appModels.size()) {
-                Log.d(TAG, "Insertion successful");
+                Log.d(TAG, "App model bulk insertion successful...");
+                return rowsInserted;
+            }
+        }
+        return 0;
+    }
+
+    public int insertProfileAppModelMap(IProfileModel IProfileModel, List<IAppModel> appModels) {
+        if (IProfileModel != null && appModels != null && !appModels.isEmpty()) {
+            ContentValues[] listValues = new ContentValues[appModels.size()];
+            for (int i = 0; i < appModels.size(); i++) {
+                IAppModel model = appModels.get(i);
+                ContentValues values = new ContentValues();
+                UUID uniqueId = UUID.randomUUID();
+                values.put(ContractConstants.PP_MAP_ID, uniqueId.toString());
+                values.put(ContractConstants.PP_MAP_PACKAGE_ID, IProfileModel.getUniqueId());
+                values.put(ContractConstants.PP_MAP_PACKAGE_ID, model.getUniqueId());
+                listValues[i] = values;
+            }
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PP_MAP);
+            int rowsInserted = mContext.getContentResolver().bulkInsert(uri, listValues);
+            if (rowsInserted == appModels.size()) {
+                Log.d(TAG, "Profile - Package map updation successful...");
                 return rowsInserted;
             }
         }
@@ -145,7 +170,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public int updateProfileModel(ProfileModel model) {
+    public int updateProfileModel(IProfileModel model) {
         if (model != null) {
             ContentValues values = new ContentValues();
             values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
@@ -189,7 +214,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    public int deleteProfileModel(ProfileModel model) {
+    public int deleteProfileModel(IProfileModel model) {
         if (model != null) {
             if (model.getUniqueId().length() != 0) {
                 Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
@@ -197,6 +222,26 @@ public class KemitorDataResolver {
                 return mContext.getContentResolver().delete(uri, null, null);
             }
         }
+        return 0;
+    }
+
+    /**
+     * Selects all records belonging to a profile model
+     * @param model
+     * @return
+     */
+    public int deleteRecordsOfProfileModel(IProfileModel model) {
+        if (model != null) {
+            if (model.getUniqueId().length() != 0) {
+                Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                        ContractConstants.TABLE_PP_MAP);
+                String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
+                String[] args = new String[1];
+                args[0] = model.getUniqueId();
+                return  mContext.getContentResolver().delete(uri, selection, args);
+            }
+        }
+        // Return 0 if none deleted
         return 0;
     }
 
@@ -211,7 +256,7 @@ public class KemitorDataResolver {
         return mContext.getContentResolver().delete(uri, null, null);
     }
 
-    public Map<IAppModel, Boolean> getAllAppModels() {
+    public ArrayList<IAppModel> getAllAppModels() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PACKAGES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
@@ -219,8 +264,8 @@ public class KemitorDataResolver {
         return cursorToAppModel(cursor);
     }
 
-    private Map<IAppModel, Boolean> cursorToAppModel(Cursor cursor) {
-        Map<IAppModel, Boolean> packages = new HashMap<>();
+    private ArrayList<IAppModel> cursorToAppModel(Cursor cursor) {
+        ArrayList<IAppModel> packages = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
             while(!cursor.isAfterLast()) {
@@ -240,7 +285,7 @@ public class KemitorDataResolver {
                     model = new AppModel(uniqueId, packageName, isSelected == 1, profileIds,
                             BlockLevel.getBlockLevelFromValue(packageBlockLevel));
                 }
-                packages.put(model, model.isSelected());
+                packages.add(model);
                 cursor.moveToNext();
             }
             cursor.close();
@@ -248,7 +293,55 @@ public class KemitorDataResolver {
         return packages;
     }
 
-    public ArrayList<ProfileModel> getAllProfileModel() {
+    public ArrayList<IAppModel> getAppModelsForProfileModel(IProfileModel profileModel) {
+        ArrayList<IAppModel> listOfAppsForProfile = null;
+        if (profileModel != null && profileModel.getUniqueId().length() != 0) {
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PP_MAP);
+            String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
+            String[] args = new String[1];
+            args[0] = profileModel.getUniqueId();
+            Cursor cursor = mContext.getContentResolver().query(uri,
+                    new String[]{ContractConstants.PP_MAP_PACKAGE_ID}, selection, args,
+                    ContractConstants.DEFAULT_PP_MAP_SORT_ORDER);
+            ArrayList<String> packageIds = cursorToAppId(cursor);
+            String[] appArgs = packageIds.toArray(new String[packageIds.size()]);
+            Uri appsUri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PACKAGES);
+            StringBuilder appsSelection = new StringBuilder();
+            appsSelection.append(ContractConstants.PACKAGES_COLUMN_ID + " IN (");
+            for (String id: packageIds) {
+                appsSelection.append("?,");
+            }
+            appsSelection.deleteCharAt(appsSelection.length() - 1);
+            appsSelection.append(")");
+
+            Cursor appsCursor = mContext.getContentResolver().query(appsUri,
+                    ContractConstants.PACKAGES_ALL_COLUMNS, appsSelection.toString(), appArgs,
+                    ContractConstants.DEFAULT_PACKAGES_SORT_ORDER);
+            listOfAppsForProfile = cursorToAppModel(appsCursor);
+        } else {
+            FirebaseCrash.logcat(Log.ERROR, TAG, "Profile id to retrieve the list of apps should " +
+                    "not be null or empty");
+        }
+        return listOfAppsForProfile;
+    }
+
+    private ArrayList<String> cursorToAppId(Cursor cursor) {
+        ArrayList<String> appIds = new ArrayList<>();
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                String appId = cursor.getString(0);
+                appIds.add(appId);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return appIds;
+    }
+
+    public ArrayList<IProfileModel> getAllProfileModel() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PROFILES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
@@ -256,8 +349,8 @@ public class KemitorDataResolver {
         return cursorToProfileModel(cursor);
     }
 
-    private ArrayList<ProfileModel> cursorToProfileModel(Cursor cursor) {
-        ArrayList<ProfileModel> profiles = new ArrayList<>();
+    private ArrayList<IProfileModel> cursorToProfileModel(Cursor cursor) {
+        ArrayList<IProfileModel> profiles = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
             while(!cursor.isAfterLast()) {
@@ -268,7 +361,7 @@ public class KemitorDataResolver {
                 int isProfileLevelSetting = cursor.getInt(index++);
                 int profileBlockLevel = cursor.getInt(index);
 
-                ProfileModel model = new ProfileModel(uniqueId, profileName, isEnabled == 1,
+                IProfileModel model = new ProfileModel(uniqueId, profileName, isEnabled == 1,
                         isProfileLevelSetting == 1, BlockLevel.getBlockLevelFromValue
                         (profileBlockLevel));
                 profiles.add(model);

@@ -20,6 +20,7 @@ import android.widget.ProgressBar;
 
 import com.apps.karums.kemitor.R;
 import com.apps.karums.kemitor.Utils;
+import com.apps.karums.kemitor.data_access.IProfileModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 import com.apps.karums.kemitor.data_access.ProfileModel;
 import com.apps.karums.kemitor.presentation.widgets.ProfileCardsAdapter;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 public class ProfileCardsActivity extends AppCompatActivity {
     private static String LOG_TAG = "ProfileCardsActivity";
     private RecyclerView.Adapter mAdapter;
-    private ArrayList<ProfileModel> mProfiles;
+    private ArrayList<IProfileModel> mProfiles;
     private AdView mAdView;
     private Context mContext;
     private ProgressBar mProgressBar;

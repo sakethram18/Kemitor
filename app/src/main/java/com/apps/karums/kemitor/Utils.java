@@ -18,8 +18,8 @@ import android.util.Log;
 
 import com.apps.karums.kemitor.data_access.AppModel;
 import com.apps.karums.kemitor.data_access.IAppModel;
+import com.apps.karums.kemitor.data_access.IProfileModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
-import com.apps.karums.kemitor.data_access.ProfileModel;
 import com.apps.karums.kemitor.data_access.LauncherAppModel;
 
 import java.text.SimpleDateFormat;
@@ -209,17 +209,20 @@ public class Utils {
                                                                  ArrayList<IAppModel>
             listOfApps) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
-        Map<IAppModel, Boolean> dbAllApps = resolver.getAllAppModels();
+        ArrayList<IAppModel> dbAllApps = resolver.getAllAppModels();
 
-        for (IAppModel model: listOfApps) {
-            if (dbAllApps.containsKey(model)) {
-                model.setSelected(dbAllApps.get(model));
+        for(IAppModel model: listOfApps) {
+            for (IAppModel dbModel : dbAllApps) {
+                if (model.equals(dbModel)) {
+                    model.setSelected(dbModel.isSelected());
+                    break;
+                }
             }
         }
         return listOfApps;
     }
 
-    public static ArrayList<ProfileModel> getSavedProfiles(Context context) {
+    public static ArrayList<IProfileModel> getSavedProfiles(Context context) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
         return resolver.getAllProfileModel();
     }

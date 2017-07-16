@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.apps.karums.kemitor.KemitorApplication;
 import com.apps.karums.kemitor.R;
 import com.apps.karums.kemitor.data_access.BlockLevel;
+import com.apps.karums.kemitor.data_access.IProfileModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 import com.apps.karums.kemitor.data_access.ProfileModel;
 
@@ -27,7 +28,7 @@ import java.util.ArrayList;
 public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapter.DataObjectHolder> {
 
     private static String LOG_TAG = "ProfileCardsAdapter";
-    private ArrayList<ProfileModel> mDataset;
+    private ArrayList<IProfileModel> mDataset;
     private static MyClickListener myClickListener;
     private Context mContext;
 
@@ -35,7 +36,7 @@ public class ProfileCardsAdapter extends RecyclerView.Adapter<ProfileCardsAdapte
         this.myClickListener = myClickListener;
     }
 
-    public ProfileCardsAdapter(Context context, ArrayList<ProfileModel> myDataset) {
+    public ProfileCardsAdapter(Context context, ArrayList<IProfileModel> myDataset) {
         mContext = context;
         mDataset = myDataset;
     }
