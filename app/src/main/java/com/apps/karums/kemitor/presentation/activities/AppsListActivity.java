@@ -1,7 +1,6 @@
 package com.apps.karums.kemitor.presentation.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,13 +10,10 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
-import com.apps.karums.kemitor.AppConstants;
 import com.apps.karums.kemitor.presentation.widgets.AppsArrayAdapter;
-import com.apps.karums.kemitor.KemitorAccessibilityService;
 import com.apps.karums.kemitor.R;
 import com.apps.karums.kemitor.Utils;
 import com.apps.karums.kemitor.data_access.IAppModel;
-import com.apps.karums.kemitor.data_access.DataModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 
 import java.util.ArrayList;
@@ -84,6 +80,7 @@ public class AppsListActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                handleSaveSettings();
                 finish();
                 return true;
             case R.id.saveSettings:
@@ -95,32 +92,46 @@ public class AppsListActivity extends AppCompatActivity {
     private void handleSaveSettings() {
         //TODO: Add a dialog warning that service will be started and changes may no longer be
         // possible
-        // Update database with latest settings
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
-                dataResolver.deleteAllAppModels();
-                dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
-                dataResolver.bulkInsertAppModels(getFilteredAndUpdatedApps(true));
-            }
-        }).start();
-        //Update the data model cache
-        DataModel.getInstance().clearAppsList();
-        DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
-        DataModel.getInstance().updateAppsList(getFilteredAndUpdatedApps(true));
-
-        ArrayList<IAppModel> selectedApps = DataModel.getInstance().getSelectedApps();
-//        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
-        Intent serviceIntent = new Intent(this, KemitorAccessibilityService.class);
-        serviceIntent.putExtra(AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
-        serviceIntent.putStringArrayListExtra(AppConstants.LIST_OF_SELECTED_APPS,
-                getPackageNameList(selectedApps));
-        startService(serviceIntent);
+        //TODO: Handle updating tables packages whenever there is a package change event received.
+        //Also, handle starting the service with all selected apps.
+        mDataResolver.deleteRecordsOfProfileModel(mCurrentProfileId);
+        ArrayList<IAppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());
+        mDataResolver.insertProfileAppModelMap(mCurrentProfileId, selectedApps);
         finish();
+        // Update database with latest settings
+//        new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                KemitorDataResolver dataResolver = new KemitorDataResolver(mContext);
+//                dataResolver.deleteAllAppModels();
+//                dataResolver.bulkInsertAppModels(listArrayAdapter.getItems());
+//                dataResolver.bulkInsertAppModels(getFilteredAndUpdatedApps(true));
+//            }
+//        }).start();
+        //Update the data model cache
+//        DataModel.getInstance().clearAppsList();
+//        DataModel.getInstance().updateAppsList(listArrayAdapter.getItems());
+//        DataModel.getInstance().updateAppsList(getFilteredAndUpdatedApps(true));
+//
+//        ArrayList<IAppModel> selectedApps = DataModel.getInstance().getSelectedApps();
+////        selectedApps.addAll(DataModel.getInstance().getLauncherApps(false));
+//        Intent serviceIntent = new Intent(this, KemitorAccessibilityService.class);
+//        serviceIntent.putExtra(AppConstants.KEMITOR_ACCESSIBILITY_SERVICE_ENABLED, true);
+//        serviceIntent.putStringArrayListExtra(AppConstants.LIST_OF_SELECTED_APPS,
+//                getPackageNameList(selectedApps));
+//        startService(serviceIntent);
+//        finish();
     }
 
-
+    public ArrayList<IAppModel> getSelectedApps(ArrayList<IAppModel> allApps) {
+        ArrayList<IAppModel> resultList = new ArrayList<>();
+        for(IAppModel model: allApps) {
+            if (model.isSelected()) {
+                resultList.add(model);
+            }
+        }
+        return resultList;
+    }
 
     private ArrayList<String> getPackageNameList(ArrayList<IAppModel> selectedApps) {
         ArrayList<String> packageNamesList = new ArrayList<>();
@@ -148,14 +159,11 @@ public class AppsListActivity extends AppCompatActivity {
 
     private ArrayList<IAppModel> updateStatusInstalledApps(ArrayList<IAppModel> listOfApps) {
         // Check what all apps are already selected for the given profile
-        ArrayList<IAppModel> dbAllApps = mDataResolver
+        ArrayList<String> dbAllApps = mDataResolver
                 .getAppModelsForProfileModel(mCurrentProfileId);
         for(IAppModel model: listOfApps) {
-            for (IAppModel dbModel : dbAllApps) {
-                if (model.equals(dbModel)) {
-                    model.setSelected(dbModel.isSelected());
-                    break;
-                }
+            if (dbAllApps.contains(model.getPackageName())) {
+                model.setSelected(true);
             }
         }
         return listOfApps;

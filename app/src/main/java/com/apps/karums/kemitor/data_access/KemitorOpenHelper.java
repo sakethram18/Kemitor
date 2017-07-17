@@ -21,7 +21,7 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_PACKAGES_TABLE = "CREATE TABLE " + TABLE_PACKAGES + " (" +
             ContractConstants.PACKAGES_COLUMN_ID + " TEXT NOT NULL PRIMARY KEY, " +
-            ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME + " TEXT NOT NULL, " +
+            ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME + " TEXT NOT NULL UNIQUE, " +
             ContractConstants.PACKAGES_COLUMN_IS_ENABLED + " INTEGER, " +
             ContractConstants.PACKAGES_COLUMN_PROFILE_IDS + " TEXT, " +
             ContractConstants.PACKAGES_COLUMN_BLOCK_LEVEL + " INTEGER, " +
@@ -36,14 +36,15 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
 
     private static final String CREATE_PP_MAP_TABLE = "CREATE TABLE " + TABLE_PP_MAP + " (" +
             ContractConstants.PP_MAP_ID + " TEXT NOT NULL PRIMARY KEY, " +
-            ContractConstants.PP_MAP_PROFILE_ID + "TEXT NOT NULL, FOREIGN KEY (" +
-                                ContractConstants.PP_MAP_PROFILE_ID + ") REFERENCES " +
-                                ContractConstants.TABLE_PROFILES + " (" +
-                                ContractConstants.PROFILES_COLUMN_ID + ")," +
-            ContractConstants.PP_MAP_PACKAGE_ID + "TEXT NOT NULL, FOREIGN KEY (" +
-                                ContractConstants.PP_MAP_PACKAGE_ID + ") REFERENCES " +
-                                ContractConstants.TABLE_PACKAGES + "(" +
-                                ContractConstants.PACKAGES_COLUMN_ID + "));";
+            ContractConstants.PP_MAP_PROFILE_ID + " TEXT NOT NULL, " +
+            ContractConstants.PP_MAP_PACKAGE_NAME + " TEXT NOT NULL, " +
+            "FOREIGN KEY(" + ContractConstants.PP_MAP_PROFILE_ID + ") REFERENCES " +
+            ContractConstants.TABLE_PROFILES + "(" +
+            ContractConstants.PROFILES_COLUMN_ID + "))";
+    //TODO: Investigate if this foreign key constraint is needed
+//            "FOREIGN KEY(" + ContractConstants.PP_MAP_PACKAGE_NAME + ") REFERENCES " +
+//            ContractConstants.TABLE_PACKAGES + "(" +
+//            ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME + "));";
 
     public KemitorOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -64,5 +65,11 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PP_MAP);
         onCreate(db);
         Log.d(TAG, "Upgrading database from " + oldVersion + "to " + newVersion);
+    }
+
+    @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        db.execSQL("PRAGMA foreign_keys=ON;");
     }
 }

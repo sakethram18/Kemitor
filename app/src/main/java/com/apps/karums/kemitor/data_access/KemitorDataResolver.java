@@ -9,9 +9,7 @@ import android.util.Log;
 import com.google.firebase.crash.FirebaseCrash;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -112,16 +110,16 @@ public class KemitorDataResolver {
         return 0;
     }
 
-    public int insertProfileAppModelMap(IProfileModel profileModel, List<IAppModel> appModels) {
-        if (profileModel != null && appModels != null && !appModels.isEmpty()) {
+    public int insertProfileAppModelMap(String profileUniqueId, List<IAppModel> appModels) {
+        if (profileUniqueId.length() > 0 && appModels != null && !appModels.isEmpty()) {
             ContentValues[] listValues = new ContentValues[appModels.size()];
             for (int i = 0; i < appModels.size(); i++) {
                 IAppModel model = appModels.get(i);
                 ContentValues values = new ContentValues();
                 UUID uniqueId = UUID.randomUUID();
                 values.put(ContractConstants.PP_MAP_ID, uniqueId.toString());
-                values.put(ContractConstants.PP_MAP_PACKAGE_ID, profileModel.getUniqueId());
-                values.put(ContractConstants.PP_MAP_PACKAGE_ID, model.getUniqueId());
+                values.put(ContractConstants.PP_MAP_PROFILE_ID, profileUniqueId);
+                values.put(ContractConstants.PP_MAP_PACKAGE_NAME, model.getPackageName());
                 listValues[i] = values;
             }
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
@@ -227,19 +225,16 @@ public class KemitorDataResolver {
 
     /**
      * Selects all records belonging to a profile model
-     * @param model
+     * @param profileUniqueId
      * @return
      */
-    public int deleteRecordsOfProfileModel(IProfileModel model) {
-        if (model != null) {
-            if (model.getUniqueId().length() != 0) {
-                Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
-                        ContractConstants.TABLE_PP_MAP);
-                String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
-                String[] args = new String[1];
-                args[0] = model.getUniqueId();
-                return  mContext.getContentResolver().delete(uri, selection, args);
-            }
+    public int deleteRecordsOfProfileModel(String profileUniqueId) {
+        if (profileUniqueId.length() != 0) {
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PP_MAP);
+            String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
+            return  mContext.getContentResolver().delete(uri, selection,
+                    new String[]{profileUniqueId});
         }
         // Return 0 if none deleted
         return 0;
@@ -293,8 +288,7 @@ public class KemitorDataResolver {
         return packages;
     }
 
-    public ArrayList<IAppModel> getAppModelsForProfileModel(String profileUniqueId) {
-        ArrayList<IAppModel> listOfAppsForProfile = null;
+    public ArrayList<String> getAppModelsForProfileModel(String profileUniqueId) {
         if (profileUniqueId.length() != 0) {
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                     ContractConstants.TABLE_PP_MAP);
@@ -302,32 +296,17 @@ public class KemitorDataResolver {
             String[] args = new String[1];
             args[0] = profileUniqueId;
             Cursor cursor = mContext.getContentResolver().query(uri,
-                    new String[]{ContractConstants.PP_MAP_PACKAGE_ID}, selection, args,
+                    new String[]{ContractConstants.PP_MAP_PACKAGE_NAME}, selection, args,
                     ContractConstants.DEFAULT_PP_MAP_SORT_ORDER);
-            ArrayList<String> packageIds = cursorToAppId(cursor);
-            String[] appArgs = packageIds.toArray(new String[packageIds.size()]);
-            Uri appsUri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
-                    ContractConstants.TABLE_PACKAGES);
-            StringBuilder appsSelection = new StringBuilder();
-            appsSelection.append(ContractConstants.PACKAGES_COLUMN_ID + " IN (");
-            for (String id: packageIds) {
-                appsSelection.append("?,");
-            }
-            appsSelection.deleteCharAt(appsSelection.length() - 1);
-            appsSelection.append(")");
-
-            Cursor appsCursor = mContext.getContentResolver().query(appsUri,
-                    ContractConstants.PACKAGES_ALL_COLUMNS, appsSelection.toString(), appArgs,
-                    ContractConstants.DEFAULT_PACKAGES_SORT_ORDER);
-            listOfAppsForProfile = cursorToAppModel(appsCursor);
+            return cursorToAppPackageNames(cursor);
         } else {
             FirebaseCrash.logcat(Log.ERROR, TAG, "Profile id to retrieve the list of apps should " +
                     "not be null or empty");
         }
-        return listOfAppsForProfile;
+        return new ArrayList<>();
     }
 
-    private ArrayList<String> cursorToAppId(Cursor cursor) {
+    private ArrayList<String> cursorToAppPackageNames(Cursor cursor) {
         ArrayList<String> appIds = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
