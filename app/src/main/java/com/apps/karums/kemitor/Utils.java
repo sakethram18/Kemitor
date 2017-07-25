@@ -2,6 +2,8 @@ package com.apps.karums.kemitor;
 
 import android.Manifest;
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
@@ -11,6 +13,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -21,6 +24,7 @@ import com.apps.karums.kemitor.data_access.IAppModel;
 import com.apps.karums.kemitor.data_access.IProfileModel;
 import com.apps.karums.kemitor.data_access.KemitorDataResolver;
 import com.apps.karums.kemitor.data_access.LauncherAppModel;
+import com.apps.karums.kemitor.presentation.receivers.AlarmReceiver;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -253,4 +257,18 @@ public class Utils {
         }
         return "";
     }
+
+    public static void scheduleNextAlarm(Context context) {
+        AlarmManager alarmMgr;
+        PendingIntent alarmIntent;
+        alarmMgr = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+        Intent intent = new Intent(context, AlarmReceiver.class);
+        alarmIntent = PendingIntent.getBroadcast(context, 0, intent, 0);
+        //TODO: Test using wakeup and non wakeup version
+        alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
+                SystemClock.elapsedRealtime() +
+                        60 * 1000, alarmIntent);
+    }
+
+
 }
