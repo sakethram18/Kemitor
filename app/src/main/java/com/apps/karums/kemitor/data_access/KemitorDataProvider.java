@@ -31,6 +31,8 @@ public class KemitorDataProvider extends ContentProvider {
     private static final int PROFILES_BY_ID = 4;
     private static final int PP_MAP = 5;
     private static final int PP_MAP_BY_ID = 6;
+    private static final int PROFILES_DOW = 7;
+    private static final int PROFILES_DOW_BY_ID = 8;
 
     static {
         URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -43,6 +45,9 @@ public class KemitorDataProvider extends ContentProvider {
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PP_MAP, PP_MAP);
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES + "/*",
                 PP_MAP_BY_ID);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_DOW, PROFILES_DOW);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_DOW + "/*",
+                PROFILES_DOW_BY_ID);
     }
 
     @Override
@@ -98,6 +103,19 @@ public class KemitorDataProvider extends ContentProvider {
                 selectionArgs = new String[1];
                 selectionArgs[0] = uri.getLastPathSegment();
                 break;
+            case PROFILES_DOW:
+                Log.d(TAG, "Querying profiles dow map...");
+                checkProfileDowColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PROFILES_DOW);
+                break;
+            case PROFILES_DOW_BY_ID:
+                Log.d(TAG, "Querying profiles dow map by profiles dow id...");
+                checkProfileDowColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PROFILES_DOW);
+                queryBuilder.appendWhere(ContractConstants.PROFILES_DOW_ID + "=?");
+                selectionArgs = new String[1];
+                selectionArgs[0] = uri.getLastPathSegment();
+                break;
             default:
                 Log.e(TAG, "Query initiated with unknown URI Type:\n URI: " + uri + "\nURI " +
                         "Type: " + uriMatch);
@@ -143,6 +161,10 @@ public class KemitorDataProvider extends ContentProvider {
                 id = database.insert(table, null, values);
                 returnValue = Uri.parse(ContractConstants.TABLE_PP_MAP + "/" + id);
                 break;
+            case PROFILES_DOW:
+                table = ContractConstants.TABLE_PROFILES_DOW;
+                id = database.insert(table, null, values);
+                returnValue = Uri.parse(ContractConstants.TABLE_PROFILES_DOW + "/" + id);
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
         }
@@ -168,6 +190,9 @@ public class KemitorDataProvider extends ContentProvider {
                 break;
             case PP_MAP:
                 table = ContractConstants.TABLE_PP_MAP;
+                break;
+            case PROFILES_DOW:
+                table = ContractConstants.TABLE_PROFILES_DOW;
                 break;
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
@@ -253,6 +278,25 @@ public class KemitorDataProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+            case PROFILES_DOW:
+                rowsDeleted = database.delete(ContractConstants.TABLE_PROFILES_DOW, selection,
+                        selectionArgs);
+                break;
+            case PROFILES_DOW_BY_ID:
+                String profileDowId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PROFILES_DOW,
+                            ContractConstants.PROFILES_DOW_ID + "=" + profileDowId,
+                            null);
+                } else {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PROFILES_DOW,
+                            ContractConstants.PROFILES_DOW_ID + "=" + profileDowId
+                                    + " and " + selection,
+                            selectionArgs);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -332,6 +376,28 @@ public class KemitorDataProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+            case PROFILES_DOW:
+                rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_DOW,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case PROFILES_DOW_BY_ID:
+                String profileDowId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_DOW,
+                            values,
+                            ContractConstants.PROFILES_DOW_ID + "=" + profileDowId,
+                            null);
+                } else {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_DOW,
+                            values,
+                            ContractConstants.PROFILES_DOW_ID + "=" + profileDowId
+                                    + " and "
+                                    + selection,
+                            selectionArgs);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -379,6 +445,21 @@ public class KemitorDataProvider extends ContentProvider {
                         "projection");
             }
             Log.d(TAG, "Profiles-package map projection columns verified");
+        }
+    }
+
+    private void checkProfileDowColumns(String[] projection) {
+        if (projection != null) {
+            HashSet<String> allColumns = new HashSet<>(Arrays.asList(ContractConstants
+                    .PROFILES_DOW_ALL_COLUMNS));
+            HashSet<String> projectionColumns = new HashSet<>(Arrays.asList(projection));
+
+            if (!allColumns.containsAll(projectionColumns)) {
+                Log.e(TAG, "Unknown columns in the profiles dow projection");
+                throw new IllegalArgumentException("Unknown columns in the dow " +
+                        "projection");
+            }
+            Log.d(TAG, "Profiles dow projection columns verified");
         }
     }
 }

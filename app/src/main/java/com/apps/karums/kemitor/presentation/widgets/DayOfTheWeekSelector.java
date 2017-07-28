@@ -99,7 +99,7 @@ public class DayOfTheWeekSelector extends LinearLayout {
         }
     }
 
-    private int getDaysSelectedState() {
+    public int getDaysSelectedState() {
         int result = 0;
         for (int i = 0; i < MAX_DAYS; i++)
             if (mStateList[i])

@@ -11,6 +11,7 @@ public class ProfileModel implements IProfileModel {
     private boolean mIsEnabled;
     private boolean mIsProfileLevelSetting;
     private BlockLevel mProfileBlockLevel = BlockLevel.LevelOne;
+    private int mDaysOfTheWeek;
 
     public ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
             isProfileLevelSetting, BlockLevel profileBlockLevel) {
@@ -75,6 +76,16 @@ public class ProfileModel implements IProfileModel {
     @Override
     public void setProfileBlockLevel(BlockLevel profileBlockLevel) {
         this.mProfileBlockLevel = profileBlockLevel;
+    }
+
+    @Override
+    public void setDaysOfTheWeek(int daysOfTheWeek) {
+        mDaysOfTheWeek = daysOfTheWeek;
+    }
+
+    @Override
+    public int getDaysOfTheWeek() {
+        return mDaysOfTheWeek;
     }
 
 }

@@ -24,4 +24,8 @@ public interface IProfileModel {
     BlockLevel getProfileBlockLevel();
 
     void setProfileBlockLevel(BlockLevel profileBlockLevel);
+
+    void setDaysOfTheWeek(int daysOfTheWeek);
+
+    int getDaysOfTheWeek();
 }

@@ -12,6 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Friday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Monday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Saturday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Sunday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Thursday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Tuesday;
+import static com.apps.karums.kemitor.data_access.DaysOfTheWeek.Wednesday;
+
 /**
  * Created by karums on 1/11/2017.
  */
@@ -60,9 +68,25 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
+    @SuppressWarnings("SimplifiableIfStatement") // More readable this way
     public boolean insertProfileModel(IProfileModel model) {
+        // Inserts the profile model into profiles table.
+        if (insertProfileModelBasic(model)) {
+            // Insert the days of week data into profiles dow table. We should have profile id at
+            // this point
+            return insertProfileModelDow(model);
+        }
+        return false;
+    }
+
+    /**
+     * Inserts the profile model into the profile table
+     * @param model
+     * @return
+     */
+    private boolean insertProfileModelBasic(IProfileModel model) {
         if (model != null) {
-            Log.d(TAG, "Inserting profile model...");
+            Log.d(TAG, "Inserting profile model in profiles table...");
             ContentValues values = new ContentValues();
             UUID uniqueId = UUID.randomUUID();
             values.put(ContractConstants.PROFILES_COLUMN_ID, uniqueId.toString());
@@ -77,6 +101,43 @@ public class KemitorDataResolver {
             if (resultUri != null) {
                 Log.d(TAG, "Profile model insertion successful");
                 model.setUniqueId(uniqueId.toString());
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Inserts the profile days of the week data into the dow table
+     * @param model
+     * @return
+     */
+    private boolean insertProfileModelDow(IProfileModel model) {
+        if (model != null) {
+            Log.d(TAG, "Inserting profile model in profiles dow table...");
+            ContentValues values = new ContentValues();
+            UUID uniqueId = UUID.randomUUID();
+            values.put(ContractConstants.PROFILES_DOW_ID, uniqueId.toString());
+            values.put(ContractConstants.PROFILES_DOW_PROFILE_ID, model.getUniqueId());
+            values.put(ContractConstants.PROFILES_DOW_SUNDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Sunday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_MONDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Monday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_TUESDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Tuesday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Wednesday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_THURSDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Thursday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_FRIDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Friday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_SATURDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Saturday) ? 1:0);
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
+                    .TABLE_PROFILES_DOW);
+            Uri resultUri = mContext.getContentResolver().insert(uri, values);
+            if (resultUri != null) {
+                Log.d(TAG, "Profile doe row insertion successful");
                 return true;
             }
         }
@@ -163,12 +224,24 @@ public class KemitorDataResolver {
     }
 
     /**
-     * Method to update Profile Model in the database
+     * Method to update Profile Model table and profile Dow table in the database
      *
      * @param model
      * @return
      */
     public int updateProfileModel(IProfileModel model) {
+        // Update profile table first
+        if (updateProfileModelBasic(model) > 0) {
+            // Update profile dow table next
+            int rowsUpdated = updateProfileModelDow(model);
+            if (rowsUpdated > 0) {
+                return rowsUpdated;
+            }
+        }
+        return 0;
+    }
+
+    private int updateProfileModelBasic(IProfileModel model) {
         if (model != null) {
             ContentValues values = new ContentValues();
             values.put(ContractConstants.PROFILES_COLUMN_PROFILE_NAME, model.getProfileName());
@@ -185,6 +258,38 @@ public class KemitorDataResolver {
             int rowsUpdated = mContext.getContentResolver().update(uri, values, selection, args);
             if (rowsUpdated > 0) {
                 Log.d(TAG, "Profile model updation successful");
+                return rowsUpdated;
+            }
+        }
+        return 0;
+    }
+
+    private int updateProfileModelDow(IProfileModel model) {
+        if (model != null) {
+            ContentValues values = new ContentValues();
+            values.put(ContractConstants.PROFILES_DOW_SUNDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Sunday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_MONDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Monday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_TUESDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Tuesday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Wednesday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_THURSDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Thursday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_FRIDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Friday) ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_SATURDAY,
+                    isDaySelected(model.getDaysOfTheWeek(), Saturday) ? 1:0);
+
+            String selection = ContractConstants.PROFILES_DOW_PROFILE_ID + "=?";
+            String[] args = new String[1];
+            args[0] = model.getUniqueId();
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
+                    .TABLE_PROFILES_DOW);
+            int rowsUpdated = mContext.getContentResolver().update(uri, values, selection, args);
+            if (rowsUpdated > 0) {
+                Log.d(TAG, "Profile dow table updation successful");
                 return rowsUpdated;
             }
         }
@@ -212,6 +317,7 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
+    // TODO: Make sure to clear Dow table and Map table at this point
     public int deleteProfileModel(IProfileModel model) {
         if (model != null) {
             if (model.getUniqueId().length() != 0) {
@@ -228,7 +334,7 @@ public class KemitorDataResolver {
      * @param profileUniqueId
      * @return
      */
-    public int deleteRecordsOfProfileModel(String profileUniqueId) {
+    public int deleteMapRecordsOfProfileModel(String profileUniqueId) {
         if (profileUniqueId.length() != 0) {
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                     ContractConstants.TABLE_PP_MAP);
@@ -364,5 +470,17 @@ public class KemitorDataResolver {
             cursor.close();
         }
         return profiles;
+    }
+
+    private boolean isDaySelected(int daysOfWeek, DaysOfTheWeek day) {
+        final int maxDays = 7;
+        String daysState = Integer.toBinaryString(daysOfWeek);
+        String repeated = new String(new char[maxDays - daysState.length()]).replace("\0", "0");
+        String finalDaysState = repeated + daysState;
+        boolean [] stateList = new boolean[maxDays];
+        for (int i = 0; i < maxDays; i++) {
+            stateList[i] = finalDaysState.charAt(i) == '1';
+        }
+        return stateList[day.getDayValue()];
     }
 }

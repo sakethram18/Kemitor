@@ -140,7 +140,7 @@ public class ProfileCardsActivity extends AppCompatActivity {
                         String newProfile = input.getText().toString();
                         if (!TextUtils.isEmpty(newProfile)) {
                             ProfileModel model = new ProfileModel(newProfile, true, false);
-                            ((ProfileCardsAdapter) mAdapter).addItem(model, mAdapter.getItemCount
+                            mAdapter.addItem(model, mAdapter.getItemCount
                                     ());
                             KemitorDataResolver resolver = new KemitorDataResolver(mContext);
                             resolver.insertProfileModel(model);

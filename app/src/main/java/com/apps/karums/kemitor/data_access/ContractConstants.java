@@ -54,4 +54,25 @@ public class ContractConstants {
     public static final String DEFAULT_PP_MAP_SORT_ORDER = PP_MAP_ID + COMMA_SPACE +
             PP_MAP_PROFILE_ID + COMMA_SPACE + PP_MAP_PACKAGE_NAME;
 
+    // Profile days of the week table
+    public static final String TABLE_PROFILES_DOW = "profiles_days_of_week";
+    public static final String PROFILES_DOW_ID = "profiles_dow_id";
+    public static final String PROFILES_DOW_PROFILE_ID = "profiles_dow_profile_id";
+    public static final String PROFILES_DOW_SUNDAY = "profiles_dow_sunday";
+    public static final String PROFILES_DOW_MONDAY = "profiles_dow_monday";
+    public static final String PROFILES_DOW_TUESDAY = "profiles_dow_tuesday";
+    public static final String PROFILES_DOW_WEDNESDAY = "profiles_dow_wednesday";
+    public static final String PROFILES_DOW_THURSDAY = "profiles_dow_thursday";
+    public static final String PROFILES_DOW_FRIDAY = "profiles_dow_friday";
+    public static final String PROFILES_DOW_SATURDAY = "profiles_dow_saturday";
+    public static final String[] PROFILES_DOW_ALL_COLUMNS = {PROFILES_DOW_ID,
+            PROFILES_DOW_PROFILE_ID,
+    PROFILES_DOW_SUNDAY, PROFILES_DOW_MONDAY, PROFILES_DOW_TUESDAY, PROFILES_DOW_WEDNESDAY,
+    PROFILES_DOW_THURSDAY, PROFILES_DOW_FRIDAY, PROFILES_DOW_SATURDAY};
+    public static final String DEFAULT_PROFILES_DOW_SORT_ORDER = PROFILES_DOW_ID + COMMA_SPACE +
+    PROFILES_DOW_PROFILE_ID +
+            COMMA_SPACE + PROFILES_DOW_SUNDAY + COMMA_SPACE + PROFILES_DOW_MONDAY + COMMA_SPACE +
+            PROFILES_DOW_TUESDAY + COMMA_SPACE + PROFILES_DOW_WEDNESDAY + COMMA_SPACE +
+            PROFILES_DOW_THURSDAY + COMMA_SPACE + PROFILES_DOW_FRIDAY + COMMA_SPACE
+            + PROFILES_DOW_SATURDAY;
 }

@@ -94,7 +94,7 @@ public class AppsListActivity extends AppCompatActivity {
         // possible
         //TODO: Handle updating tables packages whenever there is a package change event received.
         //Also, handle starting the service with all selected apps.
-        mDataResolver.deleteRecordsOfProfileModel(mCurrentProfileId);
+        mDataResolver.deleteMapRecordsOfProfileModel(mCurrentProfileId);
         ArrayList<IAppModel> selectedApps = getSelectedApps(listArrayAdapter.getItems());
         mDataResolver.insertProfileAppModelMap(mCurrentProfileId, selectedApps);
         finish();
