@@ -24,6 +24,7 @@ public class DayOfTheWeekSelector extends LinearLayout {
 
     private List<TextView> mTvs;
     private boolean[] mStateList;
+    private OnDaysChangedListener mDaysChangedListener;
 
     public DayOfTheWeekSelector(Context context) {
         super(context);
@@ -66,6 +67,10 @@ public class DayOfTheWeekSelector extends LinearLayout {
         setDaysSelectedState(0);
     }
 
+    public void setOnDaysChangedListener(OnDaysChangedListener listener) {
+        mDaysChangedListener = listener;
+    }
+
     public void setDaysSelectedState(int state) {
         mStateList = Utils.getExpandedDaysOfWeek(state);
         for (int i = 0; i < MAX_DAYS_IN_A_WEEK; i++) {
@@ -82,6 +87,8 @@ public class DayOfTheWeekSelector extends LinearLayout {
                 public void onClick(View v) {
                     mStateList[index] = !mStateList[index];
                     setDaySelected(index, mStateList[index]);
+                    mDaysChangedListener.onSelectedDaysChanged(
+                            Utils.getShortenedDaysOfWeek(mStateList));
                 }
             });
         }
@@ -97,7 +104,7 @@ public class DayOfTheWeekSelector extends LinearLayout {
         }
     }
 
-    public int getDaysSelectedState() {
-        return Utils.getShortenedDaysOfWeek(mStateList);
+    public interface OnDaysChangedListener {
+        void onSelectedDaysChanged(int selection);
     }
 }

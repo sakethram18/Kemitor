@@ -17,7 +17,8 @@ import com.apps.karums.kemitor.presentation.widgets.DayOfTheWeekSelector;
 
 import java.util.Calendar;
 
-public class ProfileSettingsActivity extends AppCompatActivity implements View.OnClickListener {
+public class ProfileSettingsActivity extends AppCompatActivity implements View.OnClickListener,
+DayOfTheWeekSelector.OnDaysChangedListener {
 
     DayOfTheWeekSelector mDaySelector;
     TextView mStartTimePicker;
@@ -51,10 +52,12 @@ public class ProfileSettingsActivity extends AppCompatActivity implements View.O
         mDaySelector.setDaysSelectedState(mCurrentProfileModel.getDaysOfTheWeek());
     }
 
+    // TODO: Decide when to synchronizeWithDatabase on this screen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                synchronizeWithDatabase();
                 finish();
                 return true;
         }
@@ -107,5 +110,21 @@ public class ProfileSettingsActivity extends AppCompatActivity implements View.O
             }
         }, hour, min, false);
         dialog.show();
+    }
+
+    @Override
+    public void onSelectedDaysChanged(int selection) {
+        mCurrentProfileModel.setDaysOfTheWeek(selection);
+    }
+
+    private void synchronizeWithDatabase() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                KemitorDataResolver resolver = new KemitorDataResolver(
+                        ProfileSettingsActivity.this);
+                resolver.updateProfileModel(mCurrentProfileModel);
+            }
+        }).start();
     }
 }
