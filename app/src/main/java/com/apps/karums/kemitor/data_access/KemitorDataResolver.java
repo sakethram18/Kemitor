@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.Selection;
 import android.util.Log;
 
 import com.apps.karums.kemitor.Utils;
@@ -306,13 +307,30 @@ public class KemitorDataResolver {
      * @param model
      * @return
      */
-    // TODO: Make sure to clear Dow table and Map table at this point
     public int deleteProfileModel(IProfileModel model) {
         if (model != null) {
             if (model.getUniqueId().length() != 0) {
+                // Clear relevant records from profiles table
                 Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                         ContractConstants.TABLE_PROFILES + "/" + model.getUniqueId());
-                return mContext.getContentResolver().delete(uri, null, null);
+                int rowsDeleted = mContext.getContentResolver().delete(uri, null, null);
+
+                if (rowsDeleted > 0) {
+                    // Clear relevant records from profile-package map table
+                    String selection = ContractConstants.PP_MAP_PROFILE_ID + "=?";
+                    Uri mapTableUri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                            ContractConstants.TABLE_PP_MAP);
+                    mContext.getContentResolver().delete(mapTableUri, selection, new
+                            String[]{model.getUniqueId()});
+
+                    // Clear relevant records from profile dow table
+                    String selectionDow = ContractConstants.PROFILES_DOW_PROFILE_ID + "=?";
+                    Uri dowUri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                            ContractConstants.TABLE_PROFILES_DOW);
+                    mContext.getContentResolver().delete(dowUri, selectionDow, new
+                            String[]{model.getUniqueId()});
+                }
+                return rowsDeleted;
             }
         }
         return 0;
