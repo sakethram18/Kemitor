@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import com.apps.karums.kemitor.Utils;
 import com.google.firebase.crash.FirebaseCrash;
 
 import java.util.ArrayList;
@@ -119,20 +120,14 @@ public class KemitorDataResolver {
             UUID uniqueId = UUID.randomUUID();
             values.put(ContractConstants.PROFILES_DOW_ID, uniqueId.toString());
             values.put(ContractConstants.PROFILES_DOW_PROFILE_ID, model.getUniqueId());
-            values.put(ContractConstants.PROFILES_DOW_SUNDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Sunday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_MONDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Monday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_TUESDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Tuesday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Wednesday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_THURSDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Thursday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_FRIDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Friday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_SATURDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Saturday) ? 1:0);
+            boolean[] daysOfWeek = Utils.getExpandedDaysOfWeek(model.getDaysOfTheWeek());
+            values.put(ContractConstants.PROFILES_DOW_SUNDAY, daysOfWeek[0] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_MONDAY, daysOfWeek[1] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_TUESDAY, daysOfWeek[2] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY, daysOfWeek[3] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_THURSDAY, daysOfWeek[4] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_FRIDAY, daysOfWeek[5] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_SATURDAY, daysOfWeek[6] ? 1:0);
             Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
                     .TABLE_PROFILES_DOW);
             Uri resultUri = mContext.getContentResolver().insert(uri, values);
@@ -267,20 +262,14 @@ public class KemitorDataResolver {
     private int updateProfileModelDow(IProfileModel model) {
         if (model != null) {
             ContentValues values = new ContentValues();
-            values.put(ContractConstants.PROFILES_DOW_SUNDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Sunday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_MONDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Monday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_TUESDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Tuesday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Wednesday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_THURSDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Thursday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_FRIDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Friday) ? 1:0);
-            values.put(ContractConstants.PROFILES_DOW_SATURDAY,
-                    isDaySelected(model.getDaysOfTheWeek(), Saturday) ? 1:0);
+            boolean[] daysOfWeek = Utils.getExpandedDaysOfWeek(model.getDaysOfTheWeek());
+            values.put(ContractConstants.PROFILES_DOW_SUNDAY, daysOfWeek[0] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_MONDAY, daysOfWeek[1] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_TUESDAY, daysOfWeek[2] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_WEDNESDAY, daysOfWeek[3] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_THURSDAY, daysOfWeek[4] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_FRIDAY, daysOfWeek[5] ? 1:0);
+            values.put(ContractConstants.PROFILES_DOW_SATURDAY, daysOfWeek[6] ? 1:0);
 
             String selection = ContractConstants.PROFILES_DOW_PROFILE_ID + "=?";
             String[] args = new String[1];
@@ -426,30 +415,72 @@ public class KemitorDataResolver {
         return appIds;
     }
 
-    public ArrayList<IProfileModel> getAllProfileModels() {
+    public ArrayList<IProfileModel> getAllProfileModelsBasicInfo() {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PROFILES);
         Cursor cursor = mContext.getContentResolver().query(uri, ContractConstants
                 .PROFILES_ALL_COLUMNS, null, null, ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
-        return cursorToProfileModel(cursor);
+        return cursorToProfileModelBasic(cursor);
     }
 
-    public IProfileModel getProfileModel(String profileModelId) {
+    public IProfileModel getDetailedProfileModel(String profileModelId) {
         Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
                 ContractConstants.TABLE_PROFILES);
         String selection = ContractConstants.PROFILES_COLUMN_ID + "=?";
         Cursor cursor = mContext.getContentResolver().query(uri,
                 ContractConstants.PROFILES_ALL_COLUMNS, selection, new String[]{profileModelId},
                 ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
-        ArrayList<IProfileModel> profileModels = cursorToProfileModel(cursor);
-        if (profileModels.size() != 1) {
-            FirebaseCrash.logcat(Log.ERROR, TAG, "Multiple profiles exist for a profile id");
+        ArrayList<IProfileModel> profileModels = cursorToProfileModelBasic(cursor);
+        ArrayList<IProfileModel> detailedProfileModels = getProfileModelsDow(profileModels);
+        if (detailedProfileModels.size() != 1) {
+            FirebaseCrash.logcat(Log.ERROR, TAG, "Multiple profiles exist for a profile id or " +
+                    "multiple dow's exist for a profile id");
         }
-        return profileModels.get(0);
+        return detailedProfileModels.get(0);
 
     }
 
-    private ArrayList<IProfileModel> cursorToProfileModel(Cursor cursor) {
+    private ArrayList<IProfileModel> getProfileModelsDow(ArrayList<IProfileModel> models) {
+        for (IProfileModel model: models) {
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PROFILES_DOW);
+            String selection = ContractConstants.PROFILES_DOW_PROFILE_ID + "=?";
+            Cursor cursor = mContext.getContentResolver().query(uri,
+                    ContractConstants.PROFILES_DOW_ALL_COLUMNS, selection, new String[]{model.getUniqueId()},
+                    ContractConstants.DEFAULT_PROFILES_DOW_SORT_ORDER);
+            int daysOfWeek = cursorToProfileDow(cursor).get(0); // assuming only one record exists
+            model.setDaysOfTheWeek(daysOfWeek);
+        }
+        return models;
+    }
+
+    private ArrayList<Integer> cursorToProfileDow(Cursor cursor) {
+        ArrayList<Integer> daysOfWeek = new ArrayList<>();
+        final int maxDays = 7;
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while(!cursor.isAfterLast()) {
+                boolean[] stateList = new boolean[maxDays];
+                int index = 0;
+                index += 2; // unique id and profile id are not needed, so skip them
+                stateList[0] = cursor.getInt(index++) == 1; // sunday
+                stateList[1] = cursor.getInt(index++) == 1; // monday
+                stateList[2] = cursor.getInt(index++) == 1; // tuesday
+                stateList[3] = cursor.getInt(index++) == 1; // wednesday
+                stateList[4] = cursor.getInt(index++) == 1; // thursday
+                stateList[5] = cursor.getInt(index++) == 1; // friday
+                stateList[6] = cursor.getInt(index) == 1; // saturday
+
+                int result = Utils.getShortenedDaysOfWeek(stateList);
+                daysOfWeek.add(result);
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return daysOfWeek;
+    }
+
+    private ArrayList<IProfileModel> cursorToProfileModelBasic(Cursor cursor) {
         ArrayList<IProfileModel> profiles = new ArrayList<>();
         if (cursor != null) {
             cursor.moveToFirst();
@@ -470,17 +501,5 @@ public class KemitorDataResolver {
             cursor.close();
         }
         return profiles;
-    }
-
-    private boolean isDaySelected(int daysOfWeek, DaysOfTheWeek day) {
-        final int maxDays = 7;
-        String daysState = Integer.toBinaryString(daysOfWeek);
-        String repeated = new String(new char[maxDays - daysState.length()]).replace("\0", "0");
-        String finalDaysState = repeated + daysState;
-        boolean [] stateList = new boolean[maxDays];
-        for (int i = 0; i < maxDays; i++) {
-            stateList[i] = finalDaysState.charAt(i) == '1';
-        }
-        return stateList[day.getDayValue()];
     }
 }

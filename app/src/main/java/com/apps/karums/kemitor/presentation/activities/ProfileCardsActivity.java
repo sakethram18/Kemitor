@@ -59,7 +59,7 @@ public class ProfileCardsActivity extends AppCompatActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                mProfiles = Utils.getSavedProfiles(mContext);
+                mProfiles = Utils.getSavedProfilesBasicInfo(mContext);
                 mAdapter = new ProfileCardsAdapter(mContext, mProfiles);
 
                 handler.post(new Runnable() {

@@ -9,9 +9,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.apps.karums.kemitor.R;
+import com.apps.karums.kemitor.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.apps.karums.kemitor.AppConstants.MAX_DAYS_IN_A_WEEK;
 
 /**
  * Created by karums1 on 6/22/2017.
@@ -21,7 +24,6 @@ public class DayOfTheWeekSelector extends LinearLayout {
 
     private List<TextView> mTvs;
     private boolean[] mStateList;
-    private final int MAX_DAYS = 7;
 
     public DayOfTheWeekSelector(Context context) {
         super(context);
@@ -61,22 +63,18 @@ public class DayOfTheWeekSelector extends LinearLayout {
         mTvs.add(mTv6);
         mTvs.add(mTv7);
         setListeners();
-        setDaysSelectedState(115);
+        setDaysSelectedState(0);
     }
 
     public void setDaysSelectedState(int state) {
-        String daysState = Integer.toBinaryString(state);
-        String repeated = new String(new char[MAX_DAYS - daysState.length()]).replace("\0", "0");
-        String finalDaysState = repeated + daysState;
-        mStateList = new boolean[MAX_DAYS];
-        for (int i = 0; i < MAX_DAYS; i++) {
-            mStateList[i] = finalDaysState.charAt(i) == '1';
+        mStateList = Utils.getExpandedDaysOfWeek(state);
+        for (int i = 0; i < MAX_DAYS_IN_A_WEEK; i++) {
             setDaySelected(i, mStateList[i]);
         }
     }
 
     private void setListeners() {
-        for (int i = 0; i < MAX_DAYS; i++) {
+        for (int i = 0; i < MAX_DAYS_IN_A_WEEK; i++) {
             final int index = i;
             final TextView textView = mTvs.get(index);
             textView.setOnClickListener(new OnClickListener() {
@@ -100,10 +98,6 @@ public class DayOfTheWeekSelector extends LinearLayout {
     }
 
     public int getDaysSelectedState() {
-        int result = 0;
-        for (int i = 0; i < MAX_DAYS; i++)
-            if (mStateList[i])
-                result += Math.pow(2, (MAX_DAYS - i - 1));
-        return result;
+        return Utils.getShortenedDaysOfWeek(mStateList);
     }
 }

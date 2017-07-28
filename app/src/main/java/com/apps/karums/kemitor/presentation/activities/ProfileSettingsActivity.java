@@ -36,7 +36,7 @@ public class ProfileSettingsActivity extends AppCompatActivity implements View.O
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         String profileId = getIntent().getStringExtra(PROFILE_ID);
         mDataResolver = new KemitorDataResolver(this);
-        mCurrentProfileModel = mDataResolver.getProfileModel(profileId);
+        mCurrentProfileModel = mDataResolver.getDetailedProfileModel(profileId);
         mDaySelector = (DayOfTheWeekSelector) findViewById(R.id.dSelector);
         mStartTimePicker = (TextView) findViewById(R.id.profileStartTime);
         mEndTimePicker = (TextView) findViewById(R.id.profileEndTime);
@@ -44,8 +44,12 @@ public class ProfileSettingsActivity extends AppCompatActivity implements View.O
         mStartTimePicker.setOnClickListener(this);
         mEndTimePicker.setOnClickListener(this);
         mSelectAppsButton.setOnClickListener(this);
+        initView();
     }
 
+    private void initView() {
+        mDaySelector.setDaysSelectedState(mCurrentProfileModel.getDaysOfTheWeek());
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

@@ -34,6 +34,8 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
+import static com.apps.karums.kemitor.AppConstants.MAX_DAYS_IN_A_WEEK;
+
 /**
  * Created by karums on 12/23/2016.
  */
@@ -207,9 +209,9 @@ public class Utils {
         return listOfApps;
     }
 
-    public static ArrayList<IProfileModel> getSavedProfiles(Context context) {
+    public static ArrayList<IProfileModel> getSavedProfilesBasicInfo(Context context) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
-        return resolver.getAllProfileModels();
+        return resolver.getAllProfileModelsBasicInfo();
     }
 
     public static String getTopAppName(Context context) {
@@ -268,6 +270,27 @@ public class Utils {
         alarmMgr.set(AlarmManager.ELAPSED_REALTIME,
                 SystemClock.elapsedRealtime() +
                         60 * 1000, alarmIntent);
+    }
+
+    public static int getShortenedDaysOfWeek(boolean[] stateList) {
+        int result = 0;
+        for (int i = 0; i < MAX_DAYS_IN_A_WEEK; i++) {
+            if (stateList[i]) {
+                result += Math.pow(2, (MAX_DAYS_IN_A_WEEK - i - 1));
+            }
+        }
+        return result;
+    }
+
+    public static boolean[] getExpandedDaysOfWeek(int daysOfWeek) {
+        boolean[] stateList = new boolean[MAX_DAYS_IN_A_WEEK];
+        String daysState = Integer.toBinaryString(daysOfWeek);
+        String repeated = new String(new char[MAX_DAYS_IN_A_WEEK - daysState.length()]).replace("\0", "0");
+        String finalDaysState = repeated + daysState;
+        for (int i = 0; i < MAX_DAYS_IN_A_WEEK; i++) {
+            stateList[i] = finalDaysState.charAt(i) == '1';
+        }
+        return stateList;
     }
 
 
