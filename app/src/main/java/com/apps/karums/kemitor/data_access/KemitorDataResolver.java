@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.text.Selection;
+import android.text.format.Time;
 import android.util.Log;
 
 import com.apps.karums.kemitor.Utils;
@@ -140,6 +141,41 @@ public class KemitorDataResolver {
         return false;
     }
 
+    /**
+     * Inserts the profile times of the day data into the tod table
+     * @param model
+     * @return
+     */
+    private int insertProfileModelTod(IProfileModel model) {
+        if (model != null) {
+            Log.d(TAG, "Inserting profile model in profiles tod table...");
+            List<TimeProfile> timeProfiles = model.getTimeProfiles();
+            if (timeProfiles.size() > 0) {
+                ContentValues[] listValues = new ContentValues[timeProfiles.size()];
+                for (int i= 0; i < timeProfiles.size(); i++) {
+                    ContentValues values = new ContentValues();
+                    UUID uniqueId = UUID.randomUUID();
+                    values.put(ContractConstants.PROFILES_TOD_ID, uniqueId.toString());
+                    values.put(ContractConstants.PROFILES_TOD_PROFILE_ID, model.getUniqueId());
+                    values.put(ContractConstants.PROFILES_TOD_START_TIME,
+                            timeProfiles.get(i).getStartTime());
+                    values.put(ContractConstants.PROFILES_TOD_END_TIME, timeProfiles.get(i)
+                            .getEndTime());
+                    listValues[i] = values;
+                }
+                Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI), ContractConstants
+                        .TABLE_PROFILES_TOD);
+                int rowsInserted = mContext.getContentResolver().bulkInsert(uri, listValues);
+                if (rowsInserted != timeProfiles.size()) {
+                    Log.d(TAG, "Profile tod row insertion successful: " + rowsInserted + " rows " +
+                            "inserted");
+                    return rowsInserted;
+                }
+            }
+        }
+        return 0;
+    }
+
     public int bulkInsertAppModels(List<IAppModel> appModels) {
         if (appModels != null && !appModels.isEmpty()) {
             ContentValues[] listValues = new ContentValues[appModels.size()];
@@ -160,7 +196,8 @@ public class KemitorDataResolver {
                     .TABLE_PACKAGES);
             int rowsInserted = mContext.getContentResolver().bulkInsert(uri, listValues);
             if (rowsInserted == appModels.size()) {
-                Log.d(TAG, "App model bulk insertion successful...");
+                Log.d(TAG, "App model insertion successful: " + rowsInserted + " rows " +
+                        "inserted");
                 return rowsInserted;
             }
         }
@@ -286,6 +323,28 @@ public class KemitorDataResolver {
         return 0;
     }
 
+    private int updateProfileModelTod(IProfileModel model) {
+        if (model != null) {
+            // TODO: Delete and insert for now. Consider using applyBatch.
+            deleteProfileModelTod(model);
+            return insertProfileModelTod(model);
+        }
+        return 0;
+    }
+
+    private int deleteProfileModelTod(IProfileModel model) {
+        if (model != null) {
+            String selectionTod = ContractConstants.PROFILES_TOD_PROFILE_ID + "=?";
+            Uri todUri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PROFILES_TOD);
+            int rowsDeleted = mContext.getContentResolver().delete(todUri, selectionTod, new
+                    String[]{model.getUniqueId()});
+            return rowsDeleted;
+        }
+        return 0;
+    }
+
+
     /**
      * Method to delete app model from the database
      * @param model
@@ -329,6 +388,9 @@ public class KemitorDataResolver {
                             ContractConstants.TABLE_PROFILES_DOW);
                     mContext.getContentResolver().delete(dowUri, selectionDow, new
                             String[]{model.getUniqueId()});
+
+                    // Clear relevant records from profile tod table
+                    deleteProfileModelTod(model);
                 }
                 return rowsDeleted;
             }
@@ -448,14 +510,17 @@ public class KemitorDataResolver {
         Cursor cursor = mContext.getContentResolver().query(uri,
                 ContractConstants.PROFILES_ALL_COLUMNS, selection, new String[]{profileModelId},
                 ContractConstants.DEFAULT_PROFILES_SORT_ORDER);
+        // Basic profile model
         ArrayList<IProfileModel> profileModels = cursorToProfileModelBasic(cursor);
-        ArrayList<IProfileModel> detailedProfileModels = getProfileModelsDow(profileModels);
-        if (detailedProfileModels.size() != 1) {
+        // Profile model with basic and dow
+        profileModels = getProfileModelsDow(profileModels);
+        // Profile model with basic, dow and tod
+        profileModels = getProfileModelsTod(profileModels);
+        if (profileModels.size() != 1) {
             FirebaseCrash.logcat(Log.ERROR, TAG, "Multiple profiles exist for a profile id or " +
                     "multiple dow's exist for a profile id");
         }
-        return detailedProfileModels.get(0);
-
+        return profileModels.get(0);
     }
 
     private ArrayList<IProfileModel> getProfileModelsDow(ArrayList<IProfileModel> models) {
@@ -470,6 +535,38 @@ public class KemitorDataResolver {
             model.setDaysOfTheWeek(daysOfWeek);
         }
         return models;
+    }
+
+    private ArrayList<IProfileModel> getProfileModelsTod(ArrayList<IProfileModel> models) {
+        for (IProfileModel model: models) {
+            Uri uri = Uri.withAppendedPath(Uri.parse(ContractConstants.CONTENT_URI),
+                    ContractConstants.TABLE_PROFILES_TOD);
+            String selection = ContractConstants.PROFILES_TOD_PROFILE_ID + "=?";
+            Cursor cursor = mContext.getContentResolver().query(uri,
+                    ContractConstants.PROFILES_TOD_ALL_COLUMNS, selection, new String[] {model
+                            .getUniqueId()},
+                    ContractConstants.DEFAULT_PROFILES_TOD_SORT_ORDER);
+            List<TimeProfile> timeProfiles = cursorToTimeProfiles(cursor);
+            model.setTimeProfiles(timeProfiles);
+        }
+        return models;
+    }
+
+    private List<TimeProfile> cursorToTimeProfiles(Cursor cursor) {
+        ArrayList<TimeProfile> timeProfiles = new ArrayList<>();
+        if (cursor != null) {
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                int index = 0;
+                index += 2; // unique id and profile id are not needed, so skip them
+                int startTime = cursor.getInt(index++);
+                int endTime = cursor.getInt(index);
+                timeProfiles.add(new TimeProfile(startTime, endTime));
+                cursor.moveToNext();
+            }
+            cursor.close();
+        }
+        return timeProfiles;
     }
 
     private ArrayList<Integer> cursorToProfileDow(Cursor cursor) {

@@ -1,5 +1,7 @@
 package com.apps.karums.kemitor.data_access;
 
+import java.util.List;
+
 /**
  * Created by karums1 on 7/10/2017.
  */
@@ -28,4 +30,8 @@ public interface IProfileModel {
     void setDaysOfTheWeek(int daysOfTheWeek);
 
     int getDaysOfTheWeek();
+
+    void setTimeProfiles(List<TimeProfile> timeProfiles);
+
+    List<TimeProfile> getTimeProfiles();
 }
