@@ -34,6 +34,8 @@ public class KemitorDataProvider extends ContentProvider {
     private static final int PP_MAP_BY_ID = 6;
     private static final int PROFILES_DOW = 7;
     private static final int PROFILES_DOW_BY_ID = 8;
+    private static final int PROFILES_TOD = 9;
+    private static final int PROFILES_TOD_BY_ID = 10;
 
     static {
         URI_MATCHER = new UriMatcher(UriMatcher.NO_MATCH);
@@ -49,6 +51,9 @@ public class KemitorDataProvider extends ContentProvider {
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_DOW, PROFILES_DOW);
         URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_DOW + "/*",
                 PROFILES_DOW_BY_ID);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_TOD, PROFILES_TOD);
+        URI_MATCHER.addURI(ContractConstants.AUTHORITY, ContractConstants.TABLE_PROFILES_TOD + "/*",
+                PROFILES_TOD_BY_ID);
     }
 
     @Override
@@ -119,6 +124,20 @@ public class KemitorDataProvider extends ContentProvider {
                 selectionArgs = new String[1];
                 selectionArgs[0] = uri.getLastPathSegment();
                 break;
+            case PROFILES_TOD:
+                Log.d(TAG, "Querying profiles tod table...");
+                checkProfileTodColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PROFILES_TOD);
+                break;
+            case PROFILES_TOD_BY_ID:
+                Log.d(TAG, "Querying profiles tod table by profiles tod id...");
+                checkProfileTodColumns(projection);
+                queryBuilder.setTables(ContractConstants.TABLE_PROFILES_TOD);
+                queryBuilder.appendWhere(ContractConstants.PROFILES_TOD_ID + "=?");
+                selectionArgs = new String[1];
+                selectionArgs[0] = uri.getLastPathSegment();
+                break;
+
             default:
                 Log.e(TAG, "Query initiated with unknown URI Type:\n URI: " + uri + "\nURI " +
                         "Type: " + uriMatch);
@@ -168,6 +187,11 @@ public class KemitorDataProvider extends ContentProvider {
                 table = ContractConstants.TABLE_PROFILES_DOW;
                 id = database.insert(table, null, values);
                 returnValue = Uri.parse(ContractConstants.TABLE_PROFILES_DOW + "/" + id);
+            case PROFILES_TOD:
+                table = ContractConstants.TABLE_PROFILES_TOD;
+                id = database.insert(table, null, values);
+                returnValue = Uri.parse(ContractConstants.TABLE_PROFILES_TOD + "/" + id);
+
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
         }
@@ -196,6 +220,9 @@ public class KemitorDataProvider extends ContentProvider {
                 break;
             case PROFILES_DOW:
                 table = ContractConstants.TABLE_PROFILES_DOW;
+                break;
+            case PROFILES_TOD:
+                table = ContractConstants.TABLE_PROFILES_TOD;
                 break;
             default:
                 Log.e(TAG, "Inserting into an unknown URI: " + uri);
@@ -296,6 +323,25 @@ public class KemitorDataProvider extends ContentProvider {
                     rowsDeleted = database.delete(
                             ContractConstants.TABLE_PROFILES_DOW,
                             ContractConstants.PROFILES_DOW_ID + "=" + profileDowId
+                                    + " and " + selection,
+                            selectionArgs);
+                }
+                break;
+            case PROFILES_TOD:
+                rowsDeleted = database.delete(ContractConstants.TABLE_PROFILES_TOD, selection,
+                        selectionArgs);
+                break;
+            case PROFILES_TOD_BY_ID:
+                String profileTodId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PROFILES_TOD,
+                            ContractConstants.PROFILES_TOD_ID + "=" + profileTodId,
+                            null);
+                } else {
+                    rowsDeleted = database.delete(
+                            ContractConstants.TABLE_PROFILES_TOD,
+                            ContractConstants.PROFILES_TOD_ID + "=" + profileTodId
                                     + " and " + selection,
                             selectionArgs);
                 }
@@ -402,6 +448,28 @@ public class KemitorDataProvider extends ContentProvider {
                             selectionArgs);
                 }
                 break;
+            case PROFILES_TOD:
+                rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_TOD,
+                        values,
+                        selection,
+                        selectionArgs);
+                break;
+            case PROFILES_TOD_BY_ID:
+                String profileTodId = uri.getLastPathSegment();
+                if (TextUtils.isEmpty(selection)) {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_TOD,
+                            values,
+                            ContractConstants.PROFILES_TOD_ID + "=" + profileTodId,
+                            null);
+                } else {
+                    rowsUpdated = database.update(ContractConstants.TABLE_PROFILES_TOD,
+                            values,
+                            ContractConstants.PROFILES_TOD_ID + "=" + profileTodId
+                                    + " and "
+                                    + selection,
+                            selectionArgs);
+                }
+                break;
             default:
                 throw new IllegalArgumentException("Unknown URI: " + uri);
         }
@@ -464,6 +532,21 @@ public class KemitorDataProvider extends ContentProvider {
                         "projection");
             }
             Log.d(TAG, "Profiles dow projection columns verified");
+        }
+    }
+
+    private void checkProfileTodColumns(String[] projection) {
+        if (projection != null) {
+            HashSet<String> allColumns = new HashSet<>(Arrays.asList(ContractConstants
+                    .PROFILES_TOD_ALL_COLUMNS));
+            HashSet<String> projectionColumns = new HashSet<>(Arrays.asList(projection));
+
+            if (!allColumns.containsAll(projectionColumns)) {
+                Log.e(TAG, "Unknown columns in the profiles tod projection");
+                throw new IllegalArgumentException("Unknown columns in the tod " +
+                        "projection");
+            }
+            Log.d(TAG, "Profiles tod projection columns verified");
         }
     }
 }

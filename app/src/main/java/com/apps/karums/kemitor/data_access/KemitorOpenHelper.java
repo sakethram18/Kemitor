@@ -9,6 +9,7 @@ import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PACKAG
 import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PP_MAP;
 import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PROFILES;
 import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PROFILES_DOW;
+import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PROFILES_TOD;
 
 /**
  * Created by karums on 1/8/2017.
@@ -48,7 +49,7 @@ class KemitorOpenHelper extends SQLiteOpenHelper {
 //            ContractConstants.PACKAGES_COLUMN_PACKAGE_NAME + "));";
 
     private static final String CREATE_PROFILES_DOW_TABLE = "CREATE TABLE " + TABLE_PROFILES_DOW + " (" +
-            ContractConstants.PROFILES_DOW_ID + "TEXT NOT NULL PRIMARY KEY, " +
+            ContractConstants.PROFILES_DOW_ID + " TEXT NOT NULL PRIMARY KEY, " +
             ContractConstants.PROFILES_DOW_PROFILE_ID + " TEXT NOT NULL, " +
             ContractConstants.PROFILES_DOW_SUNDAY + " INTEGER, " +
             ContractConstants.PROFILES_DOW_MONDAY + " INTEGER, " +
@@ -59,7 +60,15 @@ class KemitorOpenHelper extends SQLiteOpenHelper {
             ContractConstants.PROFILES_DOW_SATURDAY + " INTEGER, " +
             "FOREIGN KEY(" + ContractConstants.PROFILES_DOW_PROFILE_ID + ") REFERENCES " +
             ContractConstants.TABLE_PROFILES + "(" +
-            ContractConstants.PROFILES_COLUMN_ID + "))";
+            ContractConstants.PROFILES_COLUMN_ID + "));";
+
+    private static final String CREATE_PROFILES_TOD_TABLE = "CREATE TABLE " + TABLE_PROFILES_TOD
+            + " (" + ContractConstants.PROFILES_TOD_ID + " TEXT NOT NULL PRIMARY KEY, " +
+            ContractConstants.PROFILES_TOD_PROFILE_ID + " TEXT NOT NULL, " +
+            ContractConstants.PROFILES_TOD_START_TIME + " INTEGER, " +
+            ContractConstants.PROFILES_TOD_END_TIME + " INTEGER, " +
+            "FOREIGN KEY(" + ContractConstants.PROFILES_TOD_PROFILE_ID + ") REFERENCES " +
+            ContractConstants.TABLE_PROFILES + "(" + ContractConstants.PROFILES_COLUMN_ID + "));";
 
     KemitorOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
@@ -71,6 +80,7 @@ class KemitorOpenHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_PROFILES_TABLE);
         db.execSQL(CREATE_PP_MAP_TABLE);
         db.execSQL(CREATE_PROFILES_DOW_TABLE);
+        db.execSQL(CREATE_PROFILES_TOD_TABLE);
         Log.d(TAG, "Kemitor database created");
     }
 
@@ -80,6 +90,7 @@ class KemitorOpenHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROFILES);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PP_MAP);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROFILES_DOW);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_PROFILES_TOD);
         onCreate(db);
         Log.d(TAG, "Upgrading database from " + oldVersion + "to " + newVersion);
     }

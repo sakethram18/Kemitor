@@ -75,4 +75,16 @@ class ContractConstants {
             PROFILES_DOW_TUESDAY + COMMA_SPACE + PROFILES_DOW_WEDNESDAY + COMMA_SPACE +
             PROFILES_DOW_THURSDAY + COMMA_SPACE + PROFILES_DOW_FRIDAY + COMMA_SPACE
             + PROFILES_DOW_SATURDAY;
+
+    // Profile times of the day table
+    static final String TABLE_PROFILES_TOD = "profiles_times_of_the_day";
+    static final String PROFILES_TOD_ID = "profiles_tod_id";
+    static final String PROFILES_TOD_PROFILE_ID = "profiles_tod_profile_id";
+    static final String PROFILES_TOD_START_TIME = "profiles_tod_start_time";
+    static final String PROFILES_TOD_END_TIME = "profiles_tod_end_time";
+    static final String[] PROFILES_TOD_ALL_COLUMNS = {PROFILES_TOD_ID, PROFILES_TOD_PROFILE_ID,
+            PROFILES_TOD_START_TIME, PROFILES_TOD_END_TIME};
+    static final String DEFAULT_PROFILES_TOD_SORT_ORDER = PROFILES_TOD_ID + COMMA_SPACE +
+            PROFILES_TOD_PROFILE_ID + COMMA_SPACE + PROFILES_TOD_START_TIME + COMMA_SPACE +
+            PROFILES_TOD_END_TIME;
 }
