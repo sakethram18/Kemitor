@@ -13,7 +13,7 @@ public class ProfileModel implements IProfileModel {
     private BlockLevel mProfileBlockLevel = BlockLevel.LevelOne;
     private int mDaysOfTheWeek;
 
-    public ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
+    ProfileModel(String uniqueId, String profileName, boolean isEnabled, boolean
             isProfileLevelSetting, BlockLevel profileBlockLevel) {
         mUniqueId = uniqueId;
         mProfileName = profileName;

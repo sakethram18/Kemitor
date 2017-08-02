@@ -14,7 +14,7 @@ import static com.apps.karums.kemitor.data_access.ContractConstants.TABLE_PROFIL
  * Created by karums on 1/8/2017.
  */
 
-public class KemitorOpenHelper extends SQLiteOpenHelper {
+class KemitorOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "kemitor.db";
     private static final int DB_VERSION = ContractConstants.DATABASE_VERSION;
@@ -61,7 +61,7 @@ public class KemitorOpenHelper extends SQLiteOpenHelper {
             ContractConstants.TABLE_PROFILES + "(" +
             ContractConstants.PROFILES_COLUMN_ID + "))";
 
-    public KemitorOpenHelper(Context context) {
+    KemitorOpenHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
 

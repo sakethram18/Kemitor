@@ -4,7 +4,7 @@ package com.apps.karums.kemitor.data_access;
  * Created by karums1 on 7/27/2017.
  */
 
-public enum DaysOfTheWeek {
+enum DaysOfTheWeek {
     Sunday(0),
     Monday(1),
     Tuesday(2),

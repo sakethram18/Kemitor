@@ -12,6 +12,6 @@ public class KemitorPackageChangeListener extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         KemitorDataResolver resolver = new KemitorDataResolver(context);
-        intent.getAction()
+//        intent.getAction()
     }
 }

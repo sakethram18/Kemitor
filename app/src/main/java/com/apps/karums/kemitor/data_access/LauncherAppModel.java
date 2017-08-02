@@ -11,7 +11,7 @@ public class LauncherAppModel extends AppModel {
         super(packageName, appName, appIcon);
     }
 
-    public LauncherAppModel(String uniqueId, String packageName, String profileIds, BlockLevel blockLevel) {
+    LauncherAppModel(String uniqueId, String packageName, String profileIds, BlockLevel blockLevel) {
         super(uniqueId, packageName, true, profileIds, blockLevel);
     }
 

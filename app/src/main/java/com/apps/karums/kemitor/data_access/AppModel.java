@@ -32,8 +32,8 @@ public class AppModel implements IAppModel {
         this.mIsSelected = isSelected;
     }
 
-    public AppModel(String uniqueId, String packageName, boolean isSelected, String profileIds,
-                    BlockLevel blockLevel) {
+    AppModel(String uniqueId, String packageName, boolean isSelected, String profileIds,
+             BlockLevel blockLevel) {
         this.mUniqueId = uniqueId;
         this.mPackageName = packageName;
         this.mIsSelected = isSelected;
